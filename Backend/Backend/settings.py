@@ -40,6 +40,13 @@ INSTALLED_APPS = [
     'apps.accounts',
     'rest_framework',
     'corsheaders',
+    'apps.chat',
+    'apps.payments',
+    'apps.profile',
+    'apps.projects',
+    'apps.proposals',
+    'apps.reviews',
+
 
 ]
 
