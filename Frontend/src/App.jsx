@@ -15,6 +15,7 @@ function App() {
       <Navbar />
       <main style={{ width: '100%' }}>
         <HeroSection />
+        
         <TrustBannerSection />
         <CategoriesSection />
         <FreelancersSection />
@@ -28,3 +29,25 @@ function App() {
 }
 
 export default App
+
+
+// import { useEffect, useState } from "react";
+// import api from "./api/axios";
+
+// function App() {
+//   const [message, setMessage] = useState("");
+
+//   useEffect(() => {
+//     api.get("test/")
+//       .then((res) => setMessage(res.data.message))
+//       .catch((err) => console.log(err));
+//   }, []);
+
+//   return (
+//     <div>
+//       <h1>{message}</h1>
+//     </div>
+//   );
+// }
+
+// export default App;
