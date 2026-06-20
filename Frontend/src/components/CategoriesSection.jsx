@@ -20,12 +20,12 @@ const categories = [
 
 export default function CategoriesSection() {
   return (
-    <section className="py-24 bg-[#07070f] relative overflow-hidden">
+    <section className="section-spacing bg-[#07070f] relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-px bg-gradient-to-r from-transparent via-[#6c63ff] to-transparent" />
 
       <div style={cx}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 5vw, 3.5rem)' }}>
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#6c63ff] mb-3">
             Explore Services
           </span>

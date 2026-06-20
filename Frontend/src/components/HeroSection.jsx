@@ -18,7 +18,14 @@ export default function HeroSection() {
   const [searchQuery, setSearchQuery] = useState('')
 
   return (
-    <section className="animated-bg relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-20">
+    <section
+      className="animated-bg relative min-h-screen flex items-center justify-center overflow-hidden"
+      style={{
+        paddingTop: 'clamp(6rem, 12vw, 8rem)',
+        paddingBottom: 'clamp(4rem, 8vw, 6rem)',
+        boxSizing: 'border-box',
+      }}
+    >
       {/* Ambient Orbs */}
       <div className="orb orb-1" />
       <div className="orb orb-2" />
@@ -38,8 +45,8 @@ export default function HeroSection() {
         <div style={{ ...cx, textAlign: 'center' }}>
 
           {/* Badge */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-            className="fade-in-up bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white/70 mb-8"
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: 'clamp(1.5rem, 4vw, 2rem)' }}
+            className="fade-in-up bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white/70"
           >
             <span className="w-2 h-2 rounded-full bg-[#43e97b] animate-pulse" />
             <span>Over <strong className="text-white">500,000</strong> freelancers ready to work</span>
@@ -47,8 +54,8 @@ export default function HeroSection() {
 
           {/* Headline */}
           <h1
-            className="fade-in-up delay-1 font-bold leading-tight mb-6"
-            style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(2.8rem, 7vw, 5.5rem)' }}
+            className="fade-in-up delay-1 font-bold leading-tight"
+            style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', marginBottom: 'clamp(1rem, 3vw, 1.5rem)' }}
           >
             Hire the World's{' '}
             <span className="neon-text">Top Freelancers</span>{' '}
@@ -58,28 +65,37 @@ export default function HeroSection() {
 
           {/* Sub-headline */}
           <p
-            className="fade-in-up delay-2 text-lg md:text-xl text-white/50 leading-relaxed mb-10"
-            style={{ maxWidth: '42rem', marginLeft: 'auto', marginRight: 'auto' }}
+            className="fade-in-up delay-2 text-white/50 leading-relaxed"
+            style={{
+              fontSize: 'clamp(1rem, 2.5vw, 1.15rem)',
+              maxWidth: '42rem',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              marginBottom: 'clamp(2rem, 5vw, 2.5rem)',
+            }}
           >
             Connect with elite freelancers for any project. Build faster, smarter, and without the overhead — trusted by 2M+ businesses worldwide.
           </p>
 
           {/* Search Bar */}
-          <div className="fade-in-up delay-3 mb-8" style={{ maxWidth: '42rem', marginLeft: 'auto', marginRight: 'auto' }}>
-            <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl p-2 gap-2 backdrop-blur-sm focus-within:border-[#6c63ff]/50 focus-within:shadow-[0_0_30px_rgba(108,99,255,0.15)] transition-all duration-300">
-              <div className="pl-3 text-white/40 flex-shrink-0">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
-                </svg>
+          <div className="fade-in-up delay-3" style={{ maxWidth: '42rem', marginLeft: 'auto', marginRight: 'auto', marginBottom: 'clamp(1.5rem, 4vw, 2rem)' }}>
+            <div className="hero-search-box bg-white/5 border border-white/10 rounded-2xl p-2 backdrop-blur-sm focus-within:border-[#6c63ff]/50 focus-within:shadow-[0_0_30px_rgba(108,99,255,0.15)] transition-all duration-300">
+              <div className="hero-search-input-wrap">
+                <div className="pl-3 text-white/40 flex-shrink-0" style={{ display: 'flex', alignItems: 'center' }}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search for any skill or service..."
+                  className="bg-transparent text-white placeholder-white/30 outline-none text-base py-2 px-2"
+                  style={{ flex: 1, width: '100%', minWidth: 0, border: 'none' }}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Search for any skill or service..."
-                className="flex-1 bg-transparent text-white placeholder-white/30 outline-none text-base py-2 px-2"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button className="btn-glow py-3 px-7 rounded-xl text-sm flex-shrink-0">
+              <button className="btn-glow py-3 px-7 rounded-xl text-sm" style={{ flexShrink: 0 }}>
                 Search
               </button>
             </div>
@@ -87,8 +103,8 @@ export default function HeroSection() {
 
           {/* Popular Tags */}
           <div
-            className="fade-in-up delay-4 mb-14"
-            style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
+            className="fade-in-up delay-4"
+            style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', marginBottom: 'clamp(2.5rem, 6vw, 3.5rem)' }}
           >
             <span className="text-sm text-white/30">Popular:</span>
             {popularTags.map((tag) => (
@@ -103,8 +119,7 @@ export default function HeroSection() {
 
           {/* Stats Row */}
           <div
-            className="fade-in-up delay-5"
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', maxWidth: '36rem', marginLeft: 'auto', marginRight: 'auto' }}
+            className="fade-in-up delay-5 hero-stats-grid"
           >
             {[
               { label: 'Active Freelancers', value: '2.4M+' },

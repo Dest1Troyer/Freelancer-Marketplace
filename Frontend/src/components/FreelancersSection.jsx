@@ -29,10 +29,10 @@ function Stars({ rating }) {
 
 export default function FreelancersSection() {
   return (
-    <section className="py-24 bg-gradient-to-b from-[#07070f] to-[#0f0f23] relative overflow-hidden">
+    <section className="section-spacing bg-gradient-to-b from-[#07070f] to-[#0f0f23] relative overflow-hidden">
       <div style={cx}>
         {/* Header */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', marginBottom: '3.5rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', marginBottom: 'clamp(2rem, 5vw, 3.5rem)' }}>
           <div>
             <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#ff6584] mb-3">
               Top Talent

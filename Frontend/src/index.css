@@ -59,6 +59,158 @@ body {
   box-sizing: border-box;
 }
 
+/* Responsive display helper classes */
+.hidden-mobile {
+  display: none !important;
+}
+@media (min-width: 768px) {
+  .hidden-mobile {
+    display: flex !important;
+  }
+}
+
+.visible-mobile {
+  display: none !important;
+}
+@media (max-width: 767px) {
+  .visible-mobile {
+    display: flex !important;
+  }
+}
+
+.visible-mobile-block {
+  display: none !important;
+}
+@media (max-width: 767px) {
+  .visible-mobile-block {
+    display: block !important;
+  }
+}
+
+/* Responsive section vertical padding */
+.section-spacing {
+  padding-top: clamp(3.5rem, 8vw, 6rem) !important;
+  padding-bottom: clamp(3.5rem, 8vw, 6rem) !important;
+}
+
+/* Responsive search container */
+.hero-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+.hero-search-input-wrap {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0.5rem;
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .hero-search-box {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem !important;
+    gap: 0.75rem;
+  }
+  .hero-search-input-wrap {
+    width: 100%;
+  }
+}
+
+/* Register page responsiveness */
+.register-roles-container {
+  display: flex;
+  gap: 0.875rem;
+  width: 100%;
+}
+@media (max-width: 640px) {
+  .register-roles-container {
+    flex-direction: column;
+  }
+}
+
+.register-name-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.875rem;
+  width: 100%;
+}
+@media (max-width: 640px) {
+  .register-name-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hero-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 36rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (max-width: 640px) {
+  .hero-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Logo responsiveness */
+.logo-text {
+  display: inline !important;
+}
+@media (max-width: 480px) {
+  .logo-text {
+    display: none !important;
+  }
+}
+
+/* Mobile Menu Drawer Container */
+.mobile-menu-drawer {
+  background: rgba(7, 7, 15, 0.98) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 1.5rem 1.75rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Mobile Menu Links */
+.mobile-menu-link {
+  display: block !important;
+  padding: 1rem 0 !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  text-decoration: none !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  transition: color 0.2s !important;
+}
+.mobile-menu-link:hover {
+  color: #fff !important;
+}
+
+/* Mobile Menu Button Container */
+.mobile-menu-btn-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+  margin-top: 1.25rem !important;
+  width: 100% !important;
+}
+
+
+
+
+
 /* ─── Animated Gradient Background ─────────────────────────────────────── */
 .animated-bg {
   background: linear-gradient(-45deg, #0f0f23, #1a0533, #0d1b3e, #0f0f23);

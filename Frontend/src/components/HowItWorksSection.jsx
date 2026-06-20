@@ -18,7 +18,7 @@ const steps = [
 
 export default function HowItWorksSection() {
   return (
-    <section className="py-24 bg-[#0f0f23] relative overflow-hidden">
+    <section className="section-spacing bg-[#0f0f23] relative overflow-hidden">
       <div
         className="absolute inset-0 opacity-[0.04] pointer-events-none"
         style={{ backgroundImage: 'linear-gradient(90deg, rgba(108,99,255,0.5) 1px, transparent 1px)', backgroundSize: '80px 80px' }}
@@ -26,7 +26,7 @@ export default function HowItWorksSection() {
 
       <div style={cx}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: 'clamp(2.5rem, 6vw, 4rem)' }}>
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#43e97b] mb-3">Simple Process</span>
           <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             How <span className="neon-text">It Works</span>
@@ -65,7 +65,7 @@ export default function HowItWorksSection() {
         </div>
 
         {/* CTA */}
-        <div style={{ textAlign: 'center', marginTop: '3.5rem' }}>
+        <div style={{ textAlign: 'center', marginTop: 'clamp(2rem, 5vw, 3.5rem)' }}>
           <button className="btn-glow px-10 py-4 text-base rounded-2xl">Start a Project Today →</button>
         </div>
       </div>

@@ -1,4 +1,7 @@
 import './index.css'
+import { Routes, Route } from 'react-router-dom'
+
+// Home page sections
 import Navbar from './components/Navbar'
 import HeroSection from './components/HeroSection'
 import TrustBannerSection from './components/TrustBannerSection'
@@ -9,13 +12,16 @@ import TestimonialsSection from './components/TestimonialsSection'
 import CTASection from './components/CTASection'
 import Footer from './components/Footer'
 
-function App() {
+// Auth pages
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+
+function HomePage() {
   return (
     <div style={{ width: '100%', minHeight: '100vh', background: '#07070f', color: '#fff' }}>
       <Navbar />
       <main style={{ width: '100%' }}>
         <HeroSection />
-        
         <TrustBannerSection />
         <CategoriesSection />
         <FreelancersSection />
@@ -28,26 +34,14 @@ function App() {
   )
 }
 
+function App() {
+  return (
+    <Routes>
+      <Route path="/"          element={<HomePage />} />
+      <Route path="/login"     element={<LoginPage />} />
+      <Route path="/register"  element={<RegisterPage />} />
+    </Routes>
+  )
+}
+
 export default App
-
-
-// import { useEffect, useState } from "react";
-// import api from "./api/axios";
-
-// function App() {
-//   const [message, setMessage] = useState("");
-
-//   useEffect(() => {
-//     api.get("test/")
-//       .then((res) => setMessage(res.data.message))
-//       .catch((err) => console.log(err));
-//   }, []);
-
-//   return (
-//     <div>
-//       <h1>{message}</h1>
-//     </div>
-//   );
-// }
-
-// export default App;

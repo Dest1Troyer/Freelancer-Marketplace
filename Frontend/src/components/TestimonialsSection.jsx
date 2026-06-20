@@ -37,12 +37,12 @@ function QuoteIcon() {
 
 export default function TestimonialsSection() {
   return (
-    <section className="py-24 bg-gradient-to-b from-[#0f0f23] to-[#07070f] relative overflow-hidden">
+    <section className="section-spacing bg-gradient-to-b from-[#0f0f23] to-[#07070f] relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[#6c63ff]/8 blur-[100px] rounded-full pointer-events-none" />
 
       <div style={cx}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 5vw, 3.5rem)' }}>
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-[#f7971e] mb-3">Client Stories</span>
           <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
             Trusted by <span className="neon-text">Thousands</span>
