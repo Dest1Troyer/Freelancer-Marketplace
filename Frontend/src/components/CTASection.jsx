@@ -1,3 +1,7 @@
+import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { AuthContext } from '../context/AuthContext'
+
 const cx = {
   maxWidth: '1280px',
   marginLeft: 'auto',
@@ -11,6 +15,28 @@ const cx = {
 }
 
 export default function CTASection() {
+  const { user } = useContext(AuthContext)
+  const navigate = useNavigate()
+
+  const handlePostProject = () => {
+    if (!user) {
+      navigate('/register')
+    } else {
+      navigate('/profile')
+    }
+  }
+
+  const handleBrowseFreelancers = () => {
+    const el = document.getElementById('featured-freelancers-section')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    } else if (!user) {
+      navigate('/register')
+    } else {
+      navigate('/profile')
+    }
+  }
+
   return (
     <section className="section-spacing bg-[#07070f] relative overflow-hidden">
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -31,17 +57,49 @@ export default function CTASection() {
           className="text-5xl md:text-6xl font-black mb-6 leading-tight"
           style={{ fontFamily: "'Space Grotesk', sans-serif", maxWidth: '52rem', marginLeft: 'auto', marginRight: 'auto' }}
         >
-          Ready to Build <span className="neon-text">Something Great?</span>
+          {user ? (
+            user.role === 'client' ? (
+              <>Ready to Build <span className="neon-text">Something Great?</span></>
+            ) : (
+              <>Ready to Find <span className="neon-text">Your Next Gig?</span></>
+            )
+          ) : (
+            <>Ready to Build <span className="neon-text">Something Great?</span></>
+          )}
         </h2>
 
         <p className="text-white/45 text-lg leading-relaxed" style={{ maxWidth: '36rem', marginLeft: 'auto', marginRight: 'auto', marginBottom: 'clamp(2rem, 5vw, 2.5rem)' }}>
-          Post your project for free today. No subscription required — only pay when you find the perfect match.
+          {user ? (
+            user.role === 'client' ? (
+              "Post your project for free today. No subscription required — only pay when you find the perfect match."
+            ) : (
+              "Update your profile rate, headline, and biography to stand out to premium clients looking to hire today."
+            )
+          ) : (
+            "Post your project for free today. No subscription required — only pay when you find the perfect match."
+          )}
         </p>
 
         {/* Buttons */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', alignItems: 'center', marginBottom: 'clamp(2rem, 5vw, 3rem)' }}>
-          <button className="btn-glow px-10 py-4 text-base rounded-2xl">🚀 Post a Project — It's Free</button>
-          <button className="btn-outline px-10 py-4 text-base rounded-2xl">Browse Freelancers</button>
+          {user ? (
+            user.role === 'client' ? (
+              <>
+                <button className="btn-glow px-10 py-4 text-base rounded-2xl" onClick={handlePostProject}>🚀 Post a Project — It's Free</button>
+                <button className="btn-outline px-10 py-4 text-base rounded-2xl" onClick={handleBrowseFreelancers}>Browse Freelancers</button>
+              </>
+            ) : (
+              <>
+                <button className="btn-glow px-10 py-4 text-base rounded-2xl" onClick={() => navigate('/profile')}>💻 Update My Profile</button>
+                <button className="btn-outline px-10 py-4 text-base rounded-2xl" onClick={() => navigate('/profile')}>View My Dashboard</button>
+              </>
+            )
+          ) : (
+            <>
+              <button className="btn-glow px-10 py-4 text-base rounded-2xl" onClick={handlePostProject}>🚀 Post a Project — It's Free</button>
+              <button className="btn-outline px-10 py-4 text-base rounded-2xl" onClick={handleBrowseFreelancers}>Browse Freelancers</button>
+            </>
+          )}
         </div>
 
         {/* Trust badges */}

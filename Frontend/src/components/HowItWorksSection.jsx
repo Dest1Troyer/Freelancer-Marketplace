@@ -1,3 +1,7 @@
+import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { AuthContext } from '../context/AuthContext'
+
 const cx = {
   maxWidth: '1280px',
   marginLeft: 'auto',
@@ -17,6 +21,17 @@ const steps = [
 ]
 
 export default function HowItWorksSection() {
+  const { user } = useContext(AuthContext)
+  const navigate = useNavigate()
+
+  const handleStartToday = () => {
+    if (!user) {
+      navigate('/register')
+    } else {
+      navigate('/profile')
+    }
+  }
+
   return (
     <section className="section-spacing bg-[#0f0f23] relative overflow-hidden">
       <div
@@ -66,7 +81,13 @@ export default function HowItWorksSection() {
 
         {/* CTA */}
         <div style={{ textAlign: 'center', marginTop: 'clamp(2rem, 5vw, 3.5rem)' }}>
-          <button className="btn-glow px-10 py-4 text-base rounded-2xl">Start a Project Today →</button>
+          <button className="btn-glow px-10 py-4 text-base rounded-2xl" onClick={handleStartToday}>
+            {user ? (
+              user.role === 'client' ? '🚀 Post a Project Today →' : '💻 Complete My Profile Now →'
+            ) : (
+              'Start a Project Today →'
+            )}
+          </button>
         </div>
       </div>
     </section>

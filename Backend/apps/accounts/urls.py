@@ -6,5 +6,5 @@ urlpatterns = [
     # path("test/", test_api),
     path("login/", login),
     path("register/", register),
-    
+    path("profile/update/", update_profile),
 ]

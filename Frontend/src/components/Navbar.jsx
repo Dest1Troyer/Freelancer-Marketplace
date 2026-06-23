@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { AuthContext } from '../context/AuthContext'
 
 const navLinks = ['Find Talent', 'Find Work', 'Why FreelanceHub', 'Enterprise']
 
@@ -14,6 +15,7 @@ const cx = {
 
 export default function Navbar() {
   const navigate = useNavigate()
+  const { user, logoutUser } = useContext(AuthContext)
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -66,10 +68,35 @@ export default function Navbar() {
         </nav>
  
         {/* Auth Buttons */}
-        <div style={{ alignItems: 'center', gap: '0.75rem', flexShrink: 0 }} className="hidden-mobile">
-          <button className="btn-outline text-sm px-5 py-2.5" onClick={() => navigate('/login')}>Log In</button>
-          <button className="btn-glow text-sm px-5 py-2.5" onClick={() => navigate('/register')}>Get Started</button>
-        </div>
+        {!user ? (
+          <div style={{ alignItems: 'center', gap: '0.75rem', flexShrink: 0 }} className="hidden-mobile">
+            <button className="btn-outline text-sm px-5 py-2.5" onClick={() => navigate('/login')}>Log In</button>
+            <button className="btn-glow text-sm px-5 py-2.5" onClick={() => navigate('/register')}>Get Started</button>
+          </div>
+        ) : (
+          <div style={{ alignItems: 'center', gap: '0.75rem', flexShrink: 0 }} className="hidden-mobile">
+            {user.role === 'client' && (
+              <button className="btn-glow text-sm px-5 py-2.5" onClick={() => navigate('/profile')}>Post a Project</button>
+            )}
+            <button 
+              className="btn-outline text-sm px-5 py-2.5" 
+              onClick={() => navigate('/profile')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+              {user.profile_picture ? (
+                <img
+                  src={user.profile_picture}
+                  alt="Avatar"
+                  style={{ width: '20px', height: '20px', borderRadius: '50%', objectFit: 'cover' }}
+                />
+              ) : (
+                <span style={{ fontSize: '0.85rem' }}>👤</span>
+              )}
+              <span>My Profile</span>
+            </button>
+            <button className="btn-outline text-sm px-5 py-2.5" style={{ borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); navigate('/') }}>Log Out</button>
+          </div>
+        )}
  
         {/* Hamburger */}
         <button
@@ -92,10 +119,35 @@ export default function Navbar() {
               {link}
             </a>
           ))}
-          <div className="mobile-menu-btn-container">
-            <button className="btn-outline text-sm py-3 justify-center" style={{ width: '100%' }} onClick={() => { navigate('/login'); setMobileOpen(false) }}>Log In</button>
-            <button className="btn-glow text-sm py-3 justify-center" style={{ width: '100%' }} onClick={() => { navigate('/register'); setMobileOpen(false) }}>Get Started</button>
-          </div>
+          {!user ? (
+            <div className="mobile-menu-btn-container">
+              <button className="btn-outline text-sm py-3 justify-center" style={{ width: '100%' }} onClick={() => { navigate('/login'); setMobileOpen(false) }}>Log In</button>
+              <button className="btn-glow text-sm py-3 justify-center" style={{ width: '100%' }} onClick={() => { navigate('/register'); setMobileOpen(false) }}>Get Started</button>
+            </div>
+          ) : (
+            <div className="mobile-menu-btn-container">
+              {user.role === 'client' && (
+                <button className="btn-glow text-sm py-3 justify-center" style={{ width: '100%' }} onClick={() => { navigate('/profile'); setMobileOpen(false) }}>Post a Project</button>
+              )}
+              <button 
+                className="btn-outline text-sm py-3 justify-center" 
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }} 
+                onClick={() => { navigate('/profile'); setMobileOpen(false) }}
+              >
+                {user.profile_picture ? (
+                  <img
+                    src={user.profile_picture}
+                    alt="Avatar"
+                    style={{ width: '20px', height: '20px', borderRadius: '50%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <span style={{ fontSize: '0.85rem' }}>👤</span>
+                )}
+                <span>My Profile</span>
+              </button>
+              <button className="btn-outline text-sm py-3 justify-center" style={{ width: '100%', borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); setMobileOpen(false); navigate('/') }}>Log Out</button>
+            </div>
+          )}
         </div>
       )}
     </header>

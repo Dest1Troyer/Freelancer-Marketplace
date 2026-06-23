@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from "../api/axios";
+import { AuthContext } from '../context/AuthContext'
 
 /* ── Shared inline style: full-bleed section ── */
 const pageStyle = {
@@ -107,6 +108,7 @@ const EyeIcon = ({ open }) => (
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { loginUser } = useContext(AuthContext)
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [focused, setFocused] = useState({})
@@ -132,16 +134,11 @@ export default function LoginPage() {
 
     console.log(res.data);
 
-    // Save user data
-    localStorage.setItem(
-      "user",
-      JSON.stringify(res.data.user)
-    );
-
-    // Save login status
-    localStorage.setItem("isLoggedIn", "true");
+    // Save user data to context and localStorage
+    loginUser(res.data.user);
 
     navigate("/");
+
 
   } catch (err) {
     console.log(err);

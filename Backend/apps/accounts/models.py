@@ -20,3 +20,9 @@ class User(Document):
     )
 
     country = StringField()
+    
+    headline = StringField(default="")
+    bio = StringField(default="")
+    skills = StringField(default="")
+    hourly_rate = StringField(default="")
+    profile_picture = StringField(default="")

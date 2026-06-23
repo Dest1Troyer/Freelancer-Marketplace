@@ -1,3 +1,7 @@
+import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { AuthContext } from '../context/AuthContext'
+
 const cx = {
   maxWidth: '1280px',
   marginLeft: 'auto',
@@ -28,8 +32,27 @@ function Stars({ rating }) {
 }
 
 export default function FreelancersSection() {
+  const { user } = useContext(AuthContext)
+  const navigate = useNavigate()
+
+  const handleViewProfile = () => {
+    if (!user) {
+      navigate('/login')
+    } else {
+      navigate('/profile')
+    }
+  }
+
+  const handleViewAll = () => {
+    if (!user) {
+      navigate('/register')
+    } else {
+      navigate('/profile')
+    }
+  }
+
   return (
-    <section className="section-spacing bg-gradient-to-b from-[#07070f] to-[#0f0f23] relative overflow-hidden">
+    <section id="featured-freelancers-section" className="section-spacing bg-gradient-to-b from-[#07070f] to-[#0f0f23] relative overflow-hidden">
       <div style={cx}>
         {/* Header */}
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1rem', marginBottom: 'clamp(2rem, 5vw, 3.5rem)' }}>
@@ -41,7 +64,7 @@ export default function FreelancersSection() {
               Featured <span className="neon-text">Freelancers</span>
             </h2>
           </div>
-          <button className="btn-outline text-sm">View all freelancers →</button>
+          <button className="btn-outline text-sm" onClick={handleViewAll}>View all freelancers →</button>
         </div>
 
         {/* Cards grid */}
@@ -100,7 +123,7 @@ export default function FreelancersSection() {
                   <span className="font-bold text-white">{f.hourlyRate}</span>
                   <span className="text-xs text-white/35">/hr</span>
                 </div>
-                <button className="btn-glow text-xs px-4 py-2 rounded-lg">View Profile</button>
+                <button className="btn-glow text-xs px-4 py-2 rounded-lg" onClick={handleViewProfile}>View Profile</button>
               </div>
             </div>
           ))}
