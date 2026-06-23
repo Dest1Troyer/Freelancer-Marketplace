@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import api from "../api/axios";
 
 /* ── Shared inline style: full-bleed section ── */
 const pageStyle = {
@@ -118,20 +119,41 @@ export default function LoginPage() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    try {
-      // Replace with your API call, e.g.:
-      // await api.post('/auth/login/', form)
-      await new Promise(r => setTimeout(r, 1200)) // simulate request
-      navigate('/')
-    } catch (err) {
-      setError(err?.response?.data?.detail || 'Invalid email or password.')
-    } finally {
-      setLoading(false)
-    }
+  e.preventDefault();
+
+  setLoading(true);
+  setError("");
+
+  try {
+    const res = await api.post("login/", {
+      email: form.email,
+      password: form.password,
+    });
+
+    console.log(res.data);
+
+    // Save user data
+    localStorage.setItem(
+      "user",
+      JSON.stringify(res.data.user)
+    );
+
+    // Save login status
+    localStorage.setItem("isLoggedIn", "true");
+
+    navigate("/");
+
+  } catch (err) {
+    console.log(err);
+
+    setError(
+      err?.response?.data?.message ||
+      "Invalid email or password."
+    );
+  } finally {
+    setLoading(false);
   }
+};
 
   const inputFocusStyle = (name) => ({
     ...inputStyle,

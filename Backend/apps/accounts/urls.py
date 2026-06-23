@@ -4,7 +4,7 @@ from apps.accounts.views import *
 
 urlpatterns = [
     # path("test/", test_api),
-    # path("login/", login),
+    path("login/", login),
     path("register/", register),
     
 ]
