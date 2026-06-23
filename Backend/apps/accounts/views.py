@@ -39,9 +39,11 @@ from rest_framework.response import Response
 from apps.accounts.models import User
 
 
-@api_view(["POST"])
+@api_view(["POST","GET"])
 def login(request):
-
+    if request.method == 'GET':
+        # Render jab check karne aayega, usko yeh 200 OK mil jayega
+        return Response({"status": "healthy", "message": "Login endpoint is reachable"}, status=status.HTTP_200_OK)
     print("LOGIN API HIT")
     print(request.data)
 
