@@ -2,122 +2,138 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from apps.accounts.models import User
 from rest_framework import status
-
+import traceback
 
 @api_view(["POST"])
 def register(request):
-    
+    try:
+        data = request.data
+        email = data.get("email")
+        if not email:
+            return Response({"message": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-    data = request.data
+        if User.objects(email=email).first():
+            return Response(
+                {"message": "Email already exists"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-    if User.objects(email=data["email"]).first():
-
-        return Response(
-            {"message": "Email already exists"},
-            status=400
+        user = User(
+            first_name=data.get("first_name", ""),
+            last_name=data.get("last_name", ""),
+            email=email,
+            password=data.get("password", ""),
+            role=data.get("role", "freelancer"),
+            country=data.get("country", "")
         )
 
-    user = User(
-        first_name=data["first_name"],
-        last_name=data["last_name"],
-        email=data["email"],
-        password=data["password"],
-        role=data["role"],
-        country=data["country"]
-    )
-
-    print("USER SAVED")
-    user.save()
-
-
-    return Response({
-        "message": "Account created successfully"
-    })
-
-
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from apps.accounts.models import User
+        user.save()
+        return Response({
+            "message": "Account created successfully"
+        })
+    except Exception as e:
+        print("REGISTER ERROR:", str(e))
+        traceback.print_exc()
+        return Response({
+            "message": "Internal Server Error during registration",
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
 def login(request):
-    
-    print("LOGIN API HIT")
+    try:
+        print("LOGIN API HIT")
+        email = request.data.get("email")
+        password = request.data.get("password")
 
-    email = request.data.get("email")
-    password = request.data.get("password")
+        user = User.objects(email=email).first()
+        print("USER FOUND:", user)
 
-    user = User.objects(email=email).first()
+        if not user:
+            return Response({
+                "message": "User not found"
+            }, status=status.HTTP_404_NOT_FOUND)
 
-    print("USER:", user)
+        if user.password != password:
+            return Response({
+                "message": "Invalid password"
+            }, status=status.HTTP_401_UNAUTHORIZED)
 
-    if not user:
         return Response({
-            "message": "User not found"
-        }, status=404)
-
-    if user.password != password:
+            "message": "Login successful",
+            "user": {
+                "id": str(user.id),
+                "first_name": getattr(user, 'first_name', ''),
+                "last_name": getattr(user, 'last_name', ''),
+                "email": getattr(user, 'email', ''),
+                "role": getattr(user, 'role', ''),
+                "country": getattr(user, 'country', ''),
+                "headline": getattr(user, 'headline', ''),
+                "bio": getattr(user, 'bio', ''),
+                "skills": getattr(user, 'skills', ''),
+                "hourly_rate": getattr(user, 'hourly_rate', ''),
+                "profile_picture": getattr(user, 'profile_picture', '')
+            }
+        })
+    except Exception as e:
+        print("LOGIN ERROR:", str(e))
+        traceback.print_exc()
         return Response({
-            "message": "Invalid password"
-        }, status=401)
-
-    return Response({
-        "message": "Login successful",
-        "user": {
-            "id": str(user.id),
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            "role": user.role,
-            "country": user.country,
-            "headline": getattr(user, 'headline', ''),
-            "bio": getattr(user, 'bio', ''),
-            "skills": getattr(user, 'skills', ''),
-            "hourly_rate": getattr(user, 'hourly_rate', ''),
-            "profile_picture": getattr(user, 'profile_picture', '')
-        }
-    })
+            "message": "Internal Server Error during login serialization",
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
 def update_profile(request):
-    data = request.data
-    email = data.get("email")
-    user = User.objects(email=email).first()
+    try:
+        data = request.data
+        email = data.get("email")
+        user = User.objects(email=email).first()
 
-    if not user:
+        if not user:
+            return Response({
+                "message": "User not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        if "first_name" in data: user.first_name = data["first_name"]
+        if "last_name" in data: user.last_name = data["last_name"]
+        if "country" in data: user.country = data["country"]
+        if "headline" in data: user.headline = data["headline"]
+        if "bio" in data: user.bio = data["bio"]
+        if "skills" in data: user.skills = data["skills"]
+        if "hourly_rate" in data: user.hourly_rate = data["hourly_rate"]
+        if "profile_picture" in data: user.profile_picture = data["profile_picture"]
+
+        user.save()
+
         return Response({
-            "message": "User not found"
-        }, status=404)
-
-    if "first_name" in data: user.first_name = data["first_name"]
-    if "last_name" in data: user.last_name = data["last_name"]
-    if "country" in data: user.country = data["country"]
-    if "headline" in data: user.headline = data["headline"]
-    if "bio" in data: user.bio = data["bio"]
-    if "skills" in data: user.skills = data["skills"]
-    if "hourly_rate" in data: user.hourly_rate = data["hourly_rate"]
-    if "profile_picture" in data: user.profile_picture = data["profile_picture"]
-
-    user.save()
-
-    return Response({
-        "message": "Profile updated successfully",
-        "user": {
-            "id": str(user.id),
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            "role": user.role,
-            "country": user.country,
-            "headline": getattr(user, 'headline', ''),
-            "bio": getattr(user, 'bio', ''),
-            "skills": getattr(user, 'skills', ''),
-            "hourly_rate": getattr(user, 'hourly_rate', ''),
-            "profile_picture": getattr(user, 'profile_picture', '')
-        }
-    })
+            "message": "Profile updated successfully",
+            "user": {
+                "id": str(user.id),
+                "first_name": getattr(user, 'first_name', ''),
+                "last_name": getattr(user, 'last_name', ''),
+                "email": getattr(user, 'email', ''),
+                "role": getattr(user, 'role', ''),
+                "country": getattr(user, 'country', ''),
+                "headline": getattr(user, 'headline', ''),
+                "bio": getattr(user, 'bio', ''),
+                "skills": getattr(user, 'skills', ''),
+                "hourly_rate": getattr(user, 'hourly_rate', ''),
+                "profile_picture": getattr(user, 'profile_picture', '')
+            }
+        })
+    except Exception as e:
+        print("PROFILE UPDATE ERROR:", str(e))
+        traceback.print_exc()
+        return Response({
+            "message": "Internal Server Error during profile update",
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["GET"])
