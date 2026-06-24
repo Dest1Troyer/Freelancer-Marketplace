@@ -10,6 +10,4 @@ connect(
     host=os.getenv("MONGO_URI")
 )
 
-print("MongoDB Connected")
-
-print(os.getenv("MONGO_URI"))
+print("MongoDB Connected")

@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-nnz+2c2ely&7q5a*f+9%(65-4&8zj#%d%!awo1y1*t#b3*0wz0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['freelancer-marketplace-on57.onrender.com']
+ALLOWED_HOSTS = ['freelancer-marketplace-on57.onrender.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -130,6 +130,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+import os
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 CORS_ALLOW_ALL_ORIGINS = True
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:5173",
@@ -138,4 +141,5 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CSRF_TRUSTED_ORIGINS = [
     "https://freelancer-marketplace-lake.vercel.app",
+    "https://freelancer-marketplace-on57.onrender.com",
 ]

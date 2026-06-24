@@ -44,7 +44,6 @@ from apps.accounts.models import User
 def login(request):
     
     print("LOGIN API HIT")
-    print(request.data)
 
     email = request.data.get("email")
     password = request.data.get("password")
@@ -57,9 +56,6 @@ def login(request):
         return Response({
             "message": "User not found"
         }, status=404)
-
-    print("DB PASSWORD:", user.password)
-    print("INPUT PASSWORD:", password)
 
     if user.password != password:
         return Response({
