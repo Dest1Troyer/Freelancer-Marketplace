@@ -16,6 +16,16 @@ const cx = {
   zIndex: 10,
 }
 
+const labelStyle = {
+  display: 'block',
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  color: 'rgba(255,255,255,0.5)',
+  letterSpacing: '0.05em',
+  textTransform: 'uppercase',
+  marginBottom: '0.45rem',
+}
+
 const inputStyle = {
   width: '100%',
   background: 'rgba(255,255,255,0.04)',
