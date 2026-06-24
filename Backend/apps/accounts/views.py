@@ -152,5 +152,5 @@ def health_check(request):
                 "status": "unhealthy",
                 "database": "failed",
                 "error": str(e),
-                "message": "Database connection failed. Check your MONGO_URI env variable in Render."
+                "message": "Database connection failed. Check your MONGO_URI env variable."
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

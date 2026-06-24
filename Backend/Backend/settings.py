@@ -141,7 +141,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CSRF_TRUSTED_ORIGINS = [
     "https://freelancer-marketplace-lake.vercel.app",
-    "https://freelancer-marketplace-on57.onrender.com",
 ]
 
 from corsheaders.defaults import default_headers
