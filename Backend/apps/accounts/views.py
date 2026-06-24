@@ -40,11 +40,9 @@ from rest_framework.response import Response
 from apps.accounts.models import User
 
 
-@api_view(["POST","GET"])
+@api_view(["POST"])
 def login(request):
-    if request.method == 'GET':
-        # Render jab check karne aayega, usko yeh 200 OK mil jayega
-        return Response({"status": "healthy", "message": "Login endpoint is reachable"}, status=status.HTTP_200_OK)
+    
     print("LOGIN API HIT")
     print(request.data)
 
@@ -124,3 +122,10 @@ def update_profile(request):
             "profile_picture": getattr(user, 'profile_picture', '')
         }
     })
+
+
+@api_view(["GET"])
+def health_check(request):
+    if request.method == 'GET':
+        # Render jab check karne aayega, usko yeh 200 OK mil jayega
+        return Response({"status": "healthy", "message": "Login endpoint is reachable"}, status=status.HTTP_200_OK)

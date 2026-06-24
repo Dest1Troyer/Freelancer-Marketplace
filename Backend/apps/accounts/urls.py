@@ -7,4 +7,5 @@ urlpatterns = [
     path("login/", login),
     path("register/", register),
     path("profile/update/", update_profile),
+    path("health-check/",health_check)
 ]
