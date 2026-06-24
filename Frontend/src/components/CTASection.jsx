@@ -22,7 +22,7 @@ export default function CTASection() {
     if (!user) {
       navigate('/register')
     } else {
-      navigate('/profile')
+      navigate('/post-project')
     }
   }
 

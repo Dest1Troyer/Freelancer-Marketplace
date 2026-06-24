@@ -76,7 +76,7 @@ export default function Navbar() {
         ) : (
           <div style={{ alignItems: 'center', gap: '0.75rem', flexShrink: 0 }} className="hidden-mobile">
             {user.role === 'client' && (
-              <button className="btn-glow text-sm px-5 py-2.5" onClick={() => navigate('/profile')}>Post a Project</button>
+              <button className="btn-glow text-sm px-5 py-2.5" onClick={() => navigate('/post-project')}>Post a Project</button>
             )}
             <button 
               className="btn-outline text-sm px-5 py-2.5" 
@@ -127,7 +127,7 @@ export default function Navbar() {
           ) : (
             <div className="mobile-menu-btn-container">
               {user.role === 'client' && (
-                <button className="btn-glow text-sm py-3 justify-center" style={{ width: '100%' }} onClick={() => { navigate('/profile'); setMobileOpen(false) }}>Post a Project</button>
+                <button className="btn-glow text-sm py-3 justify-center" style={{ width: '100%' }} onClick={() => { navigate('/post-project'); setMobileOpen(false) }}>Post a Project</button>
               )}
               <button 
                 className="btn-outline text-sm py-3 justify-center" 

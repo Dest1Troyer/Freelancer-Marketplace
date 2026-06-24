@@ -21,5 +21,6 @@ from apps.accounts.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("apps.accounts.urls")),
+    path("api/projects/", include("apps.projects.urls")),
     path("", health_check),
 ]

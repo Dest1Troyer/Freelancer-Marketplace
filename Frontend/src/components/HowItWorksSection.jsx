@@ -27,6 +27,8 @@ export default function HowItWorksSection() {
   const handleStartToday = () => {
     if (!user) {
       navigate('/register')
+    } else if (user.role === 'client') {
+      navigate('/post-project')
     } else {
       navigate('/profile')
     }

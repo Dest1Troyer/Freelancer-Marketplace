@@ -16,6 +16,7 @@ import Footer from './components/Footer'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
+import PostProjectPage from './pages/PostProjectPage'
 
 function HomePage() {
   return (
@@ -42,6 +43,7 @@ function App() {
       <Route path="/login"     element={<LoginPage />} />
       <Route path="/register"  element={<RegisterPage />} />
       <Route path="/profile"   element={<ProfilePage />} />
+      <Route path="/post-project" element={<PostProjectPage />} />
     </Routes>
   )
 }

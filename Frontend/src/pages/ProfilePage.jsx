@@ -24,6 +24,8 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
+  const [projects, setProjects] = useState([])
+  const [loadingProjects, setLoadingProjects] = useState(false)
 
   const [form, setForm] = useState({
     firstName: '',
@@ -59,6 +61,24 @@ export default function ProfilePage() {
       navigate('/login')
     }
   }, [user, loading, navigate])
+
+  // Fetch client projects if role is client
+  useEffect(() => {
+    if (user && user.role === 'client') {
+      const fetchProjects = async () => {
+        setLoadingProjects(true)
+        try {
+          const res = await api.get(`projects/client/?email=${user.email}`)
+          setProjects(res.data)
+        } catch (err) {
+          console.error("Error fetching projects:", err)
+        } finally {
+          setLoadingProjects(false)
+        }
+      }
+      fetchProjects()
+    }
+  }, [user])
 
   if (loading || !user) {
     return (
@@ -341,6 +361,87 @@ export default function ProfilePage() {
                         </div>
                       ) : (
                         <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.3)', italic: true }}>No skills listed yet.</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Client's Posted Projects section */}
+                  {user.role === 'client' && (
+                    <div style={{ marginTop: '1rem' }}>
+                      <h4 style={{ fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>
+                        My Job Postings
+                      </h4>
+                      {loadingProjects ? (
+                        <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>Loading postings...</div>
+                      ) : projects.length > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          {projects.map((project) => (
+                            <div
+                              key={project.id}
+                              style={{
+                                background: 'rgba(255,255,255,0.02)',
+                                border: '1px solid rgba(255,255,255,0.05)',
+                                borderRadius: '12px',
+                                padding: '1.25rem',
+                                transition: 'all 0.2s',
+                              }}
+                              onMouseEnter={e => {
+                                e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                                e.currentTarget.style.borderColor = 'rgba(108,99,255,0.3)'
+                              }}
+                              onMouseLeave={e => {
+                                e.currentTarget.style.background = 'rgba(255,255,255,0.02)'
+                                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.5rem' }}>
+                                <h5 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#fff' }}>
+                                  {project.title}
+                                </h5>
+                                <span style={{
+                                  background: 'rgba(67,233,123,0.1)',
+                                  color: '#43e97b',
+                                  border: '1px solid rgba(67,233,123,0.25)',
+                                  borderRadius: '999px',
+                                  padding: '2px 10px',
+                                  fontSize: '0.7rem',
+                                  fontWeight: 600,
+                                  textTransform: 'uppercase'
+                                }}>
+                                  {project.status}
+                                </span>
+                              </div>
+                              <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>
+                                {project.description.length > 150 ? `${project.description.substring(0, 150)}...` : project.description}
+                              </p>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>
+                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                  <span>📁 <strong style={{ color: '#fff' }}>{project.category}</strong></span>
+                                  <span>Budget: <strong style={{ color: '#43e97b' }}>${project.budget}{project.project_type === 'hourly' ? '/hr' : ''}</strong></span>
+                                </div>
+                                {project.skills_required && (
+                                  <div style={{ display: 'flex', gap: '0.35rem' }}>
+                                    {project.skills_required.split(',').slice(0, 3).map(s => s.trim()).filter(Boolean).map(tag => (
+                                      <span key={tag} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '4px', padding: '2px 6px', fontSize: '0.7rem' }}>
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px', padding: '2rem', textAlign: 'center' }}>
+                          <span style={{ fontSize: '1.5rem' }}>💼</span>
+                          <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', margin: '0.5rem 0 1rem 0' }}>
+                            You haven't posted any jobs yet.
+                          </p>
+                          <Link to="/post-project" className="btn-glow text-xs py-2 px-4 rounded-lg" style={{ textDecoration: 'none', display: 'inline-flex' }}>
+                            Post a Project
+                          </Link>
+                        </div>
                       )}
                     </div>
                   )}
