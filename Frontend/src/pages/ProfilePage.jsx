@@ -26,6 +26,9 @@ export default function ProfilePage() {
   const [error, setError] = useState('')
   const [projects, setProjects] = useState([])
   const [loadingProjects, setLoadingProjects] = useState(false)
+  const [expandedProposalsProjectId, setExpandedProposalsProjectId] = useState(null)
+  const [activeProposals, setActiveProposals] = useState([])
+  const [loadingProposals, setLoadingProposals] = useState(false)
 
   const [form, setForm] = useState({
     firstName: '',
@@ -160,6 +163,27 @@ export default function ProfilePage() {
     setEditMode(false)
     setError('')
     setSuccess('')
+  }
+
+  const handleToggleProposals = async (projectId) => {
+    if (expandedProposalsProjectId === projectId) {
+      setExpandedProposalsProjectId(null)
+      setActiveProposals([])
+      return
+    }
+
+    setExpandedProposalsProjectId(projectId)
+    setLoadingProposals(true)
+    setActiveProposals([])
+
+    try {
+      const res = await api.get(`proposals/project/?project_id=${projectId}`)
+      setActiveProposals(res.data)
+    } catch (err) {
+      console.error("Error loading proposals:", err)
+    } finally {
+      setLoadingProposals(false)
+    }
   }
 
   const skillsList = form.skills ? form.skills.split(',').map(s => s.trim()).filter(Boolean) : []
@@ -415,20 +439,86 @@ export default function ProfilePage() {
                                 {project.description.length > 150 ? `${project.description.substring(0, 150)}...` : project.description}
                               </p>
                               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>
-                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                                   <span>📁 <strong style={{ color: '#fff' }}>{project.category}</strong></span>
                                   <span>Budget: <strong style={{ color: '#43e97b' }}>${project.budget}{project.project_type === 'hourly' ? '/hr' : ''}</strong></span>
                                 </div>
-                                {project.skills_required && (
-                                  <div style={{ display: 'flex', gap: '0.35rem' }}>
-                                    {project.skills_required.split(',').slice(0, 3).map(s => s.trim()).filter(Boolean).map(tag => (
-                                      <span key={tag} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '4px', padding: '2px 6px', fontSize: '0.7rem' }}>
-                                        {tag}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                  {project.skills_required && (
+                                    <div style={{ display: 'flex', gap: '0.35rem' }}>
+                                      {project.skills_required.split(',').slice(0, 3).map(s => s.trim()).filter(Boolean).map(tag => (
+                                        <span key={tag} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '4px', padding: '2px 6px', fontSize: '0.7rem' }}>
+                                          {tag}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleProposals(project.id)}
+                                    className="btn-glow text-xs py-1.5 px-3 rounded-lg"
+                                    style={{
+                                      fontSize: '0.75rem',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    {expandedProposalsProjectId === project.id ? 'Hide Proposals' : 'View Proposals'}
+                                  </button>
+                                </div>
                               </div>
+
+                              {/* Proposals list block */}
+                              {expandedProposalsProjectId === project.id && (
+                                <div style={{
+                                  marginTop: '1.5rem',
+                                  borderTop: '1px solid rgba(255,255,255,0.06)',
+                                  paddingTop: '1rem',
+                                }}>
+                                  <h6 style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>
+                                    Received Proposals
+                                  </h6>
+                                  {loadingProposals ? (
+                                    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>Loading proposals...</div>
+                                  ) : activeProposals.length > 0 ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                      {activeProposals.map((proposal) => (
+                                        <div
+                                          key={proposal.id}
+                                          style={{
+                                            background: 'rgba(255,255,255,0.02)',
+                                            border: '1px solid rgba(255,255,255,0.04)',
+                                            borderRadius: '8px',
+                                            padding: '1rem',
+                                          }}
+                                        >
+                                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                            <div>
+                                              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#fff' }}>
+                                                {proposal.freelancer_name || 'Freelancer'}
+                                              </span>
+                                              <span style={{ display: 'block', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
+                                                {proposal.freelancer_email}
+                                              </span>
+                                            </div>
+                                            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#43e97b' }}>
+                                              Bid: ${proposal.bid_amount}
+                                            </span>
+                                          </div>
+                                          <p style={{ margin: 0, fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.45, whiteSpace: 'pre-wrap' }}>
+                                            {proposal.cover_letter}
+                                          </p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.85rem', fontStyle: 'italic' }}>
+                                      No proposals received yet for this project.
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>

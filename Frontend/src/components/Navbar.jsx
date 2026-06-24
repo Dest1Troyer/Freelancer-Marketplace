@@ -2,7 +2,12 @@ import { useState, useEffect, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 
-const navLinks = ['Find Talent', 'Find Work', 'Why FreelanceHub', 'Enterprise']
+const links = [
+  { label: 'Find Talent', to: '/#featured-freelancers-section', isHash: true },
+  { label: 'Find Work', to: '/find-work', isHash: false },
+  { label: 'Why FreelanceHub', to: '#', isHash: true },
+  { label: 'Enterprise', to: '#', isHash: true },
+]
 
 const cx = {
   maxWidth: '1280px',
@@ -60,10 +65,16 @@ export default function Navbar() {
 
         {/* Desktop Nav */}
         <nav style={{ alignItems: 'center', gap: '2rem' }} className="hidden-mobile">
-          {navLinks.map((link) => (
-            <a key={link} href="#" className="text-sm text-white/60 hover:text-white transition-colors duration-200 font-medium">
-              {link}
-            </a>
+          {links.map((link) => (
+            link.isHash ? (
+              <a key={link.label} href={link.to} className="text-sm text-white/60 hover:text-white transition-colors duration-200 font-medium">
+                {link.label}
+              </a>
+            ) : (
+              <Link key={link.label} to={link.to} className="text-sm text-white/60 hover:text-white transition-colors duration-200 font-medium" style={{ textDecoration: 'none' }}>
+                {link.label}
+              </Link>
+            )
           ))}
         </nav>
  
@@ -114,10 +125,16 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {mobileOpen && (
         <div className="visible-mobile-block mobile-menu-drawer">
-          {navLinks.map((link) => (
-            <a key={link} href="#" className="mobile-menu-link">
-              {link}
-            </a>
+          {links.map((link) => (
+            link.isHash ? (
+              <a key={link.label} href={link.to} className="mobile-menu-link" onClick={() => setMobileOpen(false)}>
+                {link.label}
+              </a>
+            ) : (
+              <Link key={link.label} to={link.to} className="mobile-menu-link" style={{ textDecoration: 'none' }} onClick={() => setMobileOpen(false)}>
+                {link.label}
+              </Link>
+            )
           ))}
           {!user ? (
             <div className="mobile-menu-btn-container">

@@ -1,3 +1,10 @@
-from django.db import models
+from mongoengine import Document, StringField, DateTimeField
+import datetime
 
-# Create your models here.
+class Proposal(Document):
+    project_id = StringField(required=True)
+    freelancer_email = StringField(required=True)
+    freelancer_name = StringField(default="")
+    bid_amount = StringField(required=True)
+    cover_letter = StringField(required=True)
+    created_at = DateTimeField(default=datetime.datetime.utcnow)

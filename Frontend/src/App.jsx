@@ -17,6 +17,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import PostProjectPage from './pages/PostProjectPage'
+import FindWorkPage from './pages/FindWorkPage'
 
 function HomePage() {
   return (
@@ -44,6 +45,7 @@ function App() {
       <Route path="/register"  element={<RegisterPage />} />
       <Route path="/profile"   element={<ProfilePage />} />
       <Route path="/post-project" element={<PostProjectPage />} />
+      <Route path="/find-work"  element={<FindWorkPage />} />
     </Routes>
   )
 }
