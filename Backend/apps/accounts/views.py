@@ -123,5 +123,18 @@ def update_profile(request):
 @api_view(["GET"])
 def health_check(request):
     if request.method == 'GET':
-        # Render jab check karne aayega, usko yeh 200 OK mil jayega
-        return Response({"status": "healthy", "message": "Login endpoint is reachable"}, status=status.HTTP_200_OK)
+        try:
+            user_count = User.objects.count()
+            return Response({
+                "status": "healthy",
+                "database": "connected",
+                "user_count": user_count,
+                "message": "API and Database are reachable"
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": "unhealthy",
+                "database": "failed",
+                "error": str(e),
+                "message": "Database connection failed. Check your MONGO_URI env variable in Render."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
