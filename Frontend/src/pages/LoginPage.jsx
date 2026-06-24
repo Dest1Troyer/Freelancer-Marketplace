@@ -127,7 +127,7 @@ export default function LoginPage() {
   setError("");
 
   try {
-    const res = await api.post("login/", {
+    const res = await api.post("/login/", {
       email: form.email,
       password: form.password,
     });
