@@ -10,4 +10,5 @@ class Project(Document):
     budget = StringField(required=True)
     project_type = StringField(choices=["fixed", "hourly"], default="fixed")
     status = StringField(choices=["open", "in-progress", "completed"], default="open")
+    hired_freelancer_email = StringField(default="")
     created_at = DateTimeField(default=datetime.datetime.utcnow)

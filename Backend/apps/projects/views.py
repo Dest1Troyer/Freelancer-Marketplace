@@ -17,6 +17,7 @@ def serialize_project(project):
         "budget": getattr(project, "budget", ""),
         "project_type": getattr(project, "project_type", "fixed"),
         "status": getattr(project, "status", "open"),
+        "hired_freelancer_email": getattr(project, "hired_freelancer_email", ""),
         "created_at": project.created_at.isoformat() if getattr(project, "created_at", None) else None
     }
 
@@ -102,6 +103,62 @@ def get_project(request, project_id):
         return Response(serialize_project(project), status=status.HTTP_200_OK)
     except Exception as e:
         print("GET PROJECT ERROR:", str(e))
+        return Response({
+            "message": "Internal Server Error",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["GET"])
+def list_freelancer_active_projects(request):
+    try:
+        email = request.query_params.get("email")
+        if not email:
+            return Response({"message": "email parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        projects = Project.objects(hired_freelancer_email=email).order_by("-created_at")
+        serialized = [serialize_project(p) for p in projects]
+        return Response(serialized, status=status.HTTP_200_OK)
+    except Exception as e:
+        print("LIST FREELANCER ACTIVE PROJECTS ERROR:", str(e))
+        return Response({
+            "message": "Internal Server Error",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["POST"])
+def complete_project(request):
+    try:
+        data = request.data
+        project_id = data.get("project_id")
+        client_email = data.get("client_email")
+
+        if not project_id or not client_email:
+            return Response({"message": "project_id and client_email are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        from mongoengine.errors import ValidationError
+        try:
+            project = Project.objects(id=project_id).first()
+        except ValidationError:
+            return Response({"message": "Invalid project_id format"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not project:
+            return Response({"message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Verify client owns the project
+        if project.client_email != client_email:
+            return Response({"message": "Unauthorized. You do not own this project."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Complete the project
+        project.status = "completed"
+        project.save()
+
+        return Response({
+            "message": "Project marked as completed successfully.",
+            "project": serialize_project(project)
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        print("COMPLETE PROJECT ERROR:", str(e))
+        traceback.print_exc()
         return Response({
             "message": "Internal Server Error",
             "error": str(e)

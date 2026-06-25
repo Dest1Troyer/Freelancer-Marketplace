@@ -137,6 +137,31 @@ def update_profile(request):
 
 
 @api_view(["GET"])
+def get_user_profile(request):
+    try:
+        email = request.query_params.get("email")
+        if not email:
+            return Response({"message": "email parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects(email=email).first()
+        if not user:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({
+            "first_name": getattr(user, 'first_name', ''),
+            "last_name": getattr(user, 'last_name', ''),
+            "email": getattr(user, 'email', ''),
+            "role": getattr(user, 'role', ''),
+            "country": getattr(user, 'country', ''),
+            "headline": getattr(user, 'headline', ''),
+            "bio": getattr(user, 'bio', ''),
+            "skills": getattr(user, 'skills', ''),
+            "profile_picture": getattr(user, 'profile_picture', '')
+        })
+    except Exception as e:
+        print("GET PROFILE ERROR:", str(e))
+        return Response({"message": "Internal Server Error", "error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
 def health_check(request):
     if request.method == 'GET':
         try:

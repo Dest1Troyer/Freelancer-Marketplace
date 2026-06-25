@@ -314,9 +314,23 @@ export default function FindWorkPage() {
                         <span style={{ background: 'rgba(108,99,255,0.12)', color: '#a78bfa', border: '1px solid rgba(108,99,255,0.25)', borderRadius: '6px', padding: '3px 10px', fontSize: '0.75rem', fontWeight: 600 }}>
                           📁 {selectedProject.category}
                         </span>
-                        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>
-                          Posted by: {selectedProject.client_email}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>
+                            Posted by: {selectedProject.client_email}
+                          </span>
+                          {user && user.role === 'freelancer' && (
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/chat?email=${selectedProject.client_email}`)}
+                              className="btn-outline text-xs py-1 px-2.5 rounded-lg"
+                              style={{ fontSize: '0.75rem', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#fff', cursor: 'pointer' }}
+                              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                            >
+                              💬 Message
+                            </button>
+                          )}
+                        </div>
                       </div>
                       
                       <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff', margin: '0.5rem 0', fontFamily: "'Space Grotesk', sans-serif" }}>

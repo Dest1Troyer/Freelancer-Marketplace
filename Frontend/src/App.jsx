@@ -18,6 +18,7 @@ import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import PostProjectPage from './pages/PostProjectPage'
 import FindWorkPage from './pages/FindWorkPage'
+import ChatPage from './pages/ChatPage'
 
 function HomePage() {
   return (
@@ -46,6 +47,7 @@ function App() {
       <Route path="/profile"   element={<ProfilePage />} />
       <Route path="/post-project" element={<PostProjectPage />} />
       <Route path="/find-work"  element={<FindWorkPage />} />
+      <Route path="/chat"       element={<ChatPage />} />
     </Routes>
   )
 }
