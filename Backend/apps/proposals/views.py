@@ -155,6 +155,26 @@ def accept_proposal(request):
         # Reject all other proposals for this project
         Proposal.objects(project_id=proposal.project_id, id__ne=proposal.id).update(status="rejected")
 
+        # Create Escrow Payment transaction automatically
+        try:
+            from apps.payments.models import Transaction
+            from decimal import Decimal
+            bid_amount_val = Decimal(proposal.bid_amount or "0.00")
+            
+            transaction = Transaction(
+                project_id=str(project.id),
+                project_title=project.title,
+                client_email=project.client_email,
+                freelancer_email=proposal.freelancer_email,
+                amount=bid_amount_val,
+                status="funded"
+            )
+            transaction.save()
+            print("AUTO-ESCROW CREATED:", str(transaction.id))
+        except Exception as tx_err:
+            print("AUTO-ESCROW CREATION FAILED:", str(tx_err))
+            traceback.print_exc()
+
         return Response({
             "message": "Proposal accepted and freelancer hired successfully.",
             "proposal": serialize_proposal(proposal)

@@ -50,6 +50,10 @@ export default function ProfilePage() {
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' })
   const [submittingReview, setSubmittingReview] = useState(false)
 
+  // Payments specific states
+  const [transactions, setTransactions] = useState([])
+  const [loadingTransactions, setLoadingTransactions] = useState(false)
+
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -191,6 +195,56 @@ export default function ProfilePage() {
     } finally {
       setSubmittingReview(false)
     }
+  }
+
+  // Fetch transactions for active user
+  useEffect(() => {
+    if (user) {
+      const fetchTransactions = async () => {
+        setLoadingTransactions(true)
+        try {
+          const res = await api.get(`payments/user/?email=${user.email}`)
+          setTransactions(res.data)
+        } catch (err) {
+          console.error("Error fetching user transactions:", err)
+        } finally {
+          setLoadingTransactions(false)
+        }
+      }
+      fetchTransactions()
+    }
+  }, [user])
+
+  const handleReleaseEscrow = async (projectId) => {
+    if (!window.confirm("Are you sure you want to release the escrow payment for this project to the freelancer? This action cannot be undone.")) {
+      return
+    }
+    setError('')
+    setSuccess('')
+    try {
+      await api.post('payments/release/', {
+        project_id: projectId,
+        client_email: user.email
+      })
+      setSuccess("Escrow payment released successfully! 💸")
+      
+      // Update local transactions list
+      const txRes = await api.get(`payments/user/?email=${user.email}`)
+      setTransactions(txRes.data)
+      
+      // Re-fetch project list to update UI indicator
+      if (user.role === 'client') {
+        const projRes = await api.get(`projects/client/?email=${user.email}`)
+        setProjects(projRes.data)
+      }
+    } catch (err) {
+      console.error(err)
+      setError(err?.response?.data?.message || 'Failed to release escrow payment.')
+    }
+  }
+
+  const getProjectEscrow = (projectId) => {
+    return transactions.find(t => t.project_id === projectId)
   }
 
   const handleAcceptProposal = async (proposalId, projectId) => {
@@ -664,6 +718,24 @@ export default function ProfilePage() {
                     >
                       Reviews ({reviewsStats.count})
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('payments')}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        borderBottom: activeTab === 'payments' ? '2px solid #6c63ff' : '2px solid transparent',
+                        color: activeTab === 'payments' ? '#fff' : 'rgba(255,255,255,0.4)',
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.9rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        marginBottom: '-0.75rem'
+                      }}
+                    >
+                      Payments ({transactions.length})
+                    </button>
                   </div>
 
                   {/* Tab content: Overview */}
@@ -730,21 +802,37 @@ export default function ProfilePage() {
                                 <h5 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#fff' }}>
                                   {project.title}
                                 </h5>
-                                <span style={{
-                                  background: project.status === 'completed' ? 'rgba(59,130,246,0.15)' :
-                                              project.status === 'in-progress' ? 'rgba(168,85,247,0.15)' : 'rgba(67,233,123,0.15)',
-                                  color: project.status === 'completed' ? '#3b82f6' :
-                                         project.status === 'in-progress' ? '#c084fc' : '#43e97b',
-                                  border: project.status === 'completed' ? '1px solid rgba(59,130,246,0.25)' :
-                                          project.status === 'in-progress' ? '1px solid rgba(168,85,247,0.25)' : '1px solid rgba(67,233,123,0.25)',
-                                  borderRadius: '999px',
-                                  padding: '2px 10px',
-                                  fontSize: '0.7rem',
-                                  fontWeight: 600,
-                                  textTransform: 'uppercase'
-                                }}>
-                                  {project.status}
-                                </span>
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                  {getProjectEscrow(project.id) && (
+                                    <span style={{
+                                      background: getProjectEscrow(project.id).status === 'released' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
+                                      color: getProjectEscrow(project.id).status === 'released' ? '#10b981' : '#f59e0b',
+                                      border: getProjectEscrow(project.id).status === 'released' ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(245,158,11,0.25)',
+                                      borderRadius: '999px',
+                                      padding: '2px 10px',
+                                      fontSize: '0.7rem',
+                                      fontWeight: 600,
+                                      textTransform: 'uppercase'
+                                    }}>
+                                      {getProjectEscrow(project.id).status === 'released' ? '💸 Escrow Released' : '🔒 Escrow Funded'}
+                                    </span>
+                                  )}
+                                  <span style={{
+                                    background: project.status === 'completed' ? 'rgba(59,130,246,0.15)' :
+                                                project.status === 'in-progress' ? 'rgba(168,85,247,0.15)' : 'rgba(67,233,123,0.15)',
+                                    color: project.status === 'completed' ? '#3b82f6' :
+                                           project.status === 'in-progress' ? '#c084fc' : '#43e97b',
+                                    border: project.status === 'completed' ? '1px solid rgba(59,130,246,0.25)' :
+                                            project.status === 'in-progress' ? '1px solid rgba(168,85,247,0.25)' : '1px solid rgba(67,233,123,0.25)',
+                                    borderRadius: '999px',
+                                    padding: '2px 10px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 600,
+                                    textTransform: 'uppercase'
+                                  }}>
+                                    {project.status}
+                                  </span>
+                                </div>
                               </div>
                               <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>
                                 {project.description}
@@ -769,6 +857,22 @@ export default function ProfilePage() {
                                       }}
                                     >
                                       Mark Completed 🏆
+                                    </button>
+                                  )}
+                                  {getProjectEscrow(project.id) && getProjectEscrow(project.id).status === 'funded' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleReleaseEscrow(project.id)}
+                                      className="btn-glow text-xs py-1.5 px-3 rounded-lg"
+                                      style={{
+                                        fontSize: '0.75rem',
+                                        background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                                        border: 'none',
+                                        color: '#fff',
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      Release Escrow 💸
                                     </button>
                                   )}
                                   {project.status === 'completed' && project.hired_freelancer_email && (
@@ -1038,18 +1142,34 @@ export default function ProfilePage() {
                                 <h5 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#fff' }}>
                                   {project.title}
                                 </h5>
-                                <span style={{
-                                  background: project.status === 'completed' ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)',
-                                  color: project.status === 'completed' ? '#3b82f6' : '#c084fc',
-                                  border: project.status === 'completed' ? '1px solid rgba(59,130,246,0.25)' : '1px solid rgba(168,85,247,0.25)',
-                                  borderRadius: '999px',
-                                  padding: '2px 10px',
-                                  fontSize: '0.7rem',
-                                  fontWeight: 600,
-                                  textTransform: 'uppercase'
-                                }}>
-                                  {project.status === 'completed' ? 'Completed' : 'Hired / Active'}
-                                </span>
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                  {getProjectEscrow(project.id) && (
+                                    <span style={{
+                                      background: getProjectEscrow(project.id).status === 'released' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
+                                      color: getProjectEscrow(project.id).status === 'released' ? '#10b981' : '#f59e0b',
+                                      border: getProjectEscrow(project.id).status === 'released' ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(245,158,11,0.25)',
+                                      borderRadius: '999px',
+                                      padding: '2px 10px',
+                                      fontSize: '0.7rem',
+                                      fontWeight: 600,
+                                      textTransform: 'uppercase'
+                                    }}>
+                                      {getProjectEscrow(project.id).status === 'released' ? '💸 Escrow Released' : '🔒 Escrow Funded'}
+                                    </span>
+                                  )}
+                                  <span style={{
+                                    background: project.status === 'completed' ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)',
+                                    color: project.status === 'completed' ? '#3b82f6' : '#c084fc',
+                                    border: project.status === 'completed' ? '1px solid rgba(59,130,246,0.25)' : '1px solid rgba(168,85,247,0.25)',
+                                    borderRadius: '999px',
+                                    padding: '2px 10px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 600,
+                                    textTransform: 'uppercase'
+                                  }}>
+                                    {project.status === 'completed' ? 'Completed' : 'Hired / Active'}
+                                  </span>
+                                </div>
                               </div>
                               <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>
                                 {project.description}
@@ -1195,6 +1315,110 @@ export default function ProfilePage() {
                         ) : (
                           <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.06)', borderRadius: '12px', padding: '2.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
                             No feedback reviews received yet.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tab content: Payments & Ledger */}
+                  {activeTab === 'payments' && (
+                    <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      <h4 style={{ fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                        Escrow & Payment Transactions Ledger
+                      </h4>
+
+                      {/* Summary Metrics Grid */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gap: '1rem',
+                      }}>
+                        <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '1.25rem' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '0.25rem' }}>Total Funded Escrow</span>
+                          <strong style={{ fontSize: '1.5rem', color: '#f59e0b', fontFamily: "'Space Grotesk', sans-serif" }}>
+                            ${transactions
+                              .filter(t => t.status === 'funded')
+                              .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
+                              .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </strong>
+                        </div>
+                        <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '1.25rem' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '0.25rem' }}>Total Released Earnings</span>
+                          <strong style={{ fontSize: '1.5rem', color: '#10b981', fontFamily: "'Space Grotesk', sans-serif" }}>
+                            ${transactions
+                              .filter(t => t.status === 'released')
+                              .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
+                              .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </strong>
+                        </div>
+                      </div>
+
+                      {/* Transaction Table List */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        {loadingTransactions ? (
+                          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>Loading transaction records...</div>
+                        ) : transactions.length > 0 ? (
+                          transactions.map((tx) => {
+                            const statusColor = tx.status === 'released' ? '#10b981' :
+                                                tx.status === 'refunded' ? '#ff6b6b' : '#f59e0b'
+                            const statusBg = tx.status === 'released' ? 'rgba(16,185,129,0.1)' :
+                                              tx.status === 'refunded' ? 'rgba(255,107,107,0.1)' : 'rgba(245,158,11,0.1)'
+                            
+                            const isOutgoing = tx.client_email === user.email
+                            const counterpartyRole = isOutgoing ? 'Freelancer' : 'Client'
+                            const counterpartyEmail = isOutgoing ? tx.freelancer_email : tx.client_email
+
+                            return (
+                              <div
+                                key={tx.id}
+                                style={{
+                                  background: 'rgba(255,255,255,0.01)',
+                                  border: '1px solid rgba(255,255,255,0.04)',
+                                  borderRadius: '12px',
+                                  padding: '1rem 1.25rem',
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  flexWrap: 'wrap',
+                                  gap: '1rem'
+                                }}
+                              >
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                  <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>
+                                    {tx.project_title}
+                                  </span>
+                                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
+                                    {isOutgoing ? '📤 Paid to' : '📥 Received from'}: <strong>{counterpartyEmail}</strong> ({counterpartyRole})
+                                  </span>
+                                  <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)' }}>
+                                    {new Date(tx.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                                  <strong style={{ fontSize: '1.2rem', color: isOutgoing ? '#ff6584' : '#43e97b' }}>
+                                    {isOutgoing ? '-' : '+'}${parseFloat(tx.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                  </strong>
+                                  <span style={{
+                                    background: statusBg,
+                                    color: statusColor,
+                                    border: `1px solid ${statusColor}40`,
+                                    borderRadius: '999px',
+                                    padding: '3px 12px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 600,
+                                    textTransform: 'uppercase'
+                                  }}>
+                                    {tx.status}
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          })
+                        ) : (
+                          <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.06)', borderRadius: '12px', padding: '2.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
+                            No payment transactions recorded yet.
                           </div>
                         )}
                       </div>
