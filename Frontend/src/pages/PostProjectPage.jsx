@@ -78,7 +78,6 @@ export default function PostProjectPage() {
           </svg>
           <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)' }}>Loading workspace...</span>
         </div>
-        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
     )
   }
@@ -236,7 +235,7 @@ export default function PostProjectPage() {
               {/* Project Type Pills */}
               <div>
                 <label style={labelStyle}>Budget Type</label>
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
+                <div className="project-type-row" style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
                   <button
                     type="button"
                     onClick={() => handleTypeSelect('fixed')}
@@ -349,7 +348,6 @@ export default function PostProjectPage() {
       </main>
 
       <Footer />
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

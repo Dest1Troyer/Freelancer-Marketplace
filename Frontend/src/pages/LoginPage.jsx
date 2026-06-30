@@ -132,8 +132,6 @@ export default function LoginPage() {
       password: form.password,
     });
 
-    console.log(res.data);
-
     // Save user data to context and localStorage
     loginUser(res.data.user);
 
@@ -141,8 +139,6 @@ export default function LoginPage() {
 
 
   } catch (err) {
-    console.log(err);
-
     setError(
       err?.response?.data?.message ||
       "Invalid email or password."
@@ -359,9 +355,6 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
-
-      {/* Spin animation */}
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

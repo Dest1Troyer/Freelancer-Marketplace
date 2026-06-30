@@ -224,7 +224,6 @@ export default function ChatPage() {
           </svg>
           <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)' }}>Connecting chat engine...</span>
         </div>
-        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
     )
   }
@@ -245,10 +244,10 @@ export default function ChatPage() {
           backgroundSize: '30px 30px',
         }} />
 
-        <div style={{ ...cx, display: 'flex', gap: '1.5rem', height: '100%', alignItems: 'stretch', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
+        <div className="chat-container" style={{ ...cx, display: 'flex', gap: '1.5rem', height: '100%', alignItems: 'stretch', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
           
           {/* Left Panel: Conversations list */}
-          <div className="glass-card" style={{ flex: '1 1 300px', padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+          <div className={`glass-card chat-sidebar ${activeContact ? 'mobile-hidden' : ''}`} style={{ flex: '1 1 300px', padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 1.25rem 0', fontFamily: "'Space Grotesk', sans-serif" }}>
               📩 Inbox
             </h2>
@@ -335,11 +334,28 @@ export default function ChatPage() {
           </div>
 
           {/* Right Panel: Conversation View */}
-          <div className="glass-card" style={{ flex: '2 1 600px', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+          <div className={`glass-card chat-main ${!activeContact ? 'mobile-hidden' : ''}`} style={{ flex: '2 1 600px', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
             {activeContact ? (
               <>
                 {/* Contact Header */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.01)' }}>
+                  <button
+                    onClick={() => setActiveContact(null)}
+                    className="visible-mobile btn-outline"
+                    style={{
+                      padding: '0.35rem 0.75rem',
+                      borderRadius: '8px',
+                      fontSize: '0.8rem',
+                      marginRight: '0.5rem',
+                      cursor: 'pointer',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      width: 'fit-content',
+                      height: 'fit-content'
+                    }}
+                  >
+                    ← Back
+                  </button>
                   <div style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
                     {activeContact.profile_picture ? (
                       <img src={activeContact.profile_picture} alt="Contact" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -445,8 +461,6 @@ export default function ChatPage() {
 
         </div>
       </main>
-
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

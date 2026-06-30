@@ -335,7 +335,6 @@ export default function ProfilePage() {
           </svg>
           <span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)' }}>Checking session...</span>
         </div>
-        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
     )
   }
@@ -582,7 +581,7 @@ export default function ProfilePage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem' }}>
                     <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)' }}>Hourly Rate</span>
                     <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#43e97b' }}>
-                      {user.hourly_rate ? `${user.hourly_rate}/hr` : 'Not Set'}
+                      {user.hourly_rate ? `$${user.hourly_rate}/hr` : 'Not Set'}
                     </span>
                   </div>
                 )}
@@ -621,7 +620,7 @@ export default function ProfilePage() {
                   </div>
 
                   {/* Tabs Navigation */}
-                  <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem', marginBottom: '1.75rem' }}>
+                  <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.75rem', marginBottom: '1.75rem', flexWrap: 'wrap' }}>
                     <button
                       type="button"
                       onClick={() => setActiveTab('overview')}

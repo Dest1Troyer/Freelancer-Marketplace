@@ -76,6 +76,9 @@ body {
   .visible-mobile {
     display: flex !important;
   }
+  .mobile-hidden {
+    display: none !important;
+  }
 }
 
 .visible-mobile-block {
@@ -516,4 +519,32 @@ body {
 .tilt-card {
   transition: transform 0.2s ease;
   transform-style: preserve-3d;
+}
+
+/* ─── Spinner Animation (used globally) ──────────────────────────────────── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Chat & Find Work Pages Responsiveness ─── */
+@media (max-width: 767px) {
+  .chat-container {
+    flex-direction: column !important;
+    gap: 0 !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+  .findwork-list-col, .findwork-details-col {
+    flex: 1 1 100% !important;
+    max-height: none !important;
+  }
+}
+
+/* ─── Post Project Type Responsiveness ─── */
+@media (max-width: 640px) {
+  .project-type-row {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
 }

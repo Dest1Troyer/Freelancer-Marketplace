@@ -46,6 +46,8 @@ export default function FindWorkPage() {
   const [projects, setProjects] = useState([])
   const [loadingProjects, setLoadingProjects] = useState(true)
   const [selectedProject, setSelectedProject] = useState(null)
+  const [viewMode, setViewMode] = useState('list') // 'list' | 'details'
+
   
   // Proposals check
   const [appliedProposals, setAppliedProposals] = useState([])
@@ -229,7 +231,7 @@ export default function FindWorkPage() {
           ) : (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
               {/* Left Column: Projects List */}
-              <div style={{ flex: '1 1 360px', display: 'flex', flexDirection: 'column', gap: '1rem', maxH: '800px', overflowY: 'auto' }}>
+              <div className={`findwork-list-col ${viewMode === 'details' ? 'mobile-hidden' : ''}`} style={{ flex: '1 1 360px', display: 'flex', flexDirection: 'column', gap: '1rem', maxH: '800px', overflowY: 'auto' }}>
                 {filteredProjects.length === 0 ? (
                   <div style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '2rem' }}>
                     No search results match your criteria.
@@ -246,6 +248,7 @@ export default function FindWorkPage() {
                           setSelectedProject(project)
                           setProposalError('')
                           setProposalSuccess('')
+                          setViewMode('details')
                         }}
                         style={{
                           background: isSelected ? 'rgba(108,99,255,0.08)' : 'rgba(255,255,255,0.02)',
@@ -304,9 +307,28 @@ export default function FindWorkPage() {
               </div>
 
               {/* Right Column: Project Details & Proposals Application */}
-              <div style={{ flex: '2 1 500px' }}>
+              <div className={`findwork-details-col ${viewMode === 'list' ? 'mobile-hidden' : ''}`} style={{ flex: '2 1 500px' }}>
                 {selectedProject ? (
                   <div className="glass-card" style={{ padding: '2.5rem', position: 'sticky', top: '7.5rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('list')}
+                      className="visible-mobile btn-outline"
+                      style={{
+                        padding: '0.35rem 0.75rem',
+                        borderRadius: '8px',
+                        fontSize: '0.8rem',
+                        marginBottom: '1rem',
+                        cursor: 'pointer',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 'fit-content'
+                      }}
+                    >
+                      ← Back to Projects
+                    </button>
                     
                     {/* Project Meta details */}
                     <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '1.5rem', marginBottom: '1.5rem' }}>
@@ -496,7 +518,6 @@ export default function FindWorkPage() {
       </main>
 
       <Footer />
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

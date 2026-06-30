@@ -211,9 +211,6 @@ export default function RegisterPage() {
   }
 
   const handleSubmit = async () => {
-  console.log("HANDLE SUBMIT CALLED");
-  console.log("FORM:", form);
-
   setLoading(true);
 
   try {
@@ -226,14 +223,10 @@ export default function RegisterPage() {
       country: form.country,
     });
 
-    console.log("SUCCESS:", res.data);
-
     await new Promise((r) => setTimeout(r, 1400));
 
     setStep(4);
   } catch (err) {
-    console.log("ERROR:", err);
-
     setErrors({
       submit:
         err?.response?.data?.message ||
@@ -599,8 +592,6 @@ export default function RegisterPage() {
           </p>
         )}
       </div>
-
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }
