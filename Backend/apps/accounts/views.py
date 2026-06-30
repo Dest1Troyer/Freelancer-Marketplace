@@ -5,8 +5,11 @@ from rest_framework import status
 import traceback
 import hashlib
 
-def hash_password(password):
-    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+def hash_password(password, use_salt=True):
+    if not use_salt:
+        return hashlib.sha256(password.encode('utf-8')).hexdigest()
+    salt = "FreelanceHubSecureSaltValue123!"
+    return hashlib.sha256((password + salt).encode('utf-8')).hexdigest()
 
 @api_view(["POST"])
 def register(request):
@@ -26,7 +29,7 @@ def register(request):
             first_name=data.get("first_name", ""),
             last_name=data.get("last_name", ""),
             email=email,
-            password=hash_password(data.get("password", "")),
+            password=hash_password(data.get("password", ""), use_salt=True),
             role=data.get("role", "freelancer"),
             country=data.get("country", "")
         )
@@ -59,17 +62,26 @@ def login(request):
                 "message": "User not found"
             }, status=status.HTTP_404_NOT_FOUND)
 
-        hashed = hash_password(password)
-        if user.password != hashed:
-            # Backward compatibility: check if stored password is plaintext (pre-migration)
-            if user.password == password:
-                # Auto-migrate to hashed password
-                user.password = hashed
-                user.save()
-            else:
-                return Response({
-                    "message": "Invalid password"
-                }, status=status.HTTP_401_UNAUTHORIZED)
+        hashed_salted = hash_password(password, use_salt=True)
+        hashed_unsalted = hash_password(password, use_salt=False)
+
+        if user.password == hashed_salted:
+            # Already migrated/registered with salted hash
+            pass
+        elif user.password == hashed_unsalted:
+            # Auto-migrate unsalted hash to salted hash
+            user.password = hashed_salted
+            user.save()
+            print("PASSWORD AUTO-MIGRATED TO SALTED HASH FOR:", email)
+        elif user.password == password:
+            # Auto-migrate plaintext password to salted hash
+            user.password = hashed_salted
+            user.save()
+            print("PASSWORD AUTO-MIGRATED FROM PLAINTEXT TO SALTED HASH FOR:", email)
+        else:
+            return Response({
+                "message": "Invalid password"
+            }, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response({
             "message": "Login successful",
