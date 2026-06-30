@@ -145,6 +145,15 @@ def get_user_profile(request):
         user = User.objects(email=email).first()
         if not user:
             return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Calculate rating
+        from apps.reviews.models import Review
+        reviews = Review.objects(reviewee_email=email)
+        count = len(reviews)
+        avg_rating = 0.0
+        if count > 0:
+            avg_rating = round(sum(r.rating for r in reviews) / count, 1)
+
         return Response({
             "first_name": getattr(user, 'first_name', ''),
             "last_name": getattr(user, 'last_name', ''),
@@ -154,7 +163,9 @@ def get_user_profile(request):
             "headline": getattr(user, 'headline', ''),
             "bio": getattr(user, 'bio', ''),
             "skills": getattr(user, 'skills', ''),
-            "profile_picture": getattr(user, 'profile_picture', '')
+            "profile_picture": getattr(user, 'profile_picture', ''),
+            "average_rating": avg_rating,
+            "review_count": count
         })
     except Exception as e:
         print("GET PROFILE ERROR:", str(e))

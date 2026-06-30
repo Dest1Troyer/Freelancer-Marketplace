@@ -37,6 +37,19 @@ export default function ProfilePage() {
   const [freelancerProjects, setFreelancerProjects] = useState([])
   const [loadingFreelancerProjects, setLoadingFreelancerProjects] = useState(false)
 
+  // Review & Rating specific states
+  const [reviews, setReviews] = useState([])
+  const [reviewsStats, setReviewsStats] = useState({
+    average_rating: 0.0,
+    count: 0,
+    breakdown: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 }
+  })
+  const [loadingReviews, setLoadingReviews] = useState(false)
+  const [reviewModalOpen, setReviewModalOpen] = useState(false)
+  const [reviewTarget, setReviewTarget] = useState(null)
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' })
+  const [submittingReview, setSubmittingReview] = useState(false)
+
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -117,6 +130,68 @@ export default function ProfilePage() {
       fetchFreelancerData()
     }
   }, [user])
+
+  // Fetch reviews for active user
+  useEffect(() => {
+    if (user) {
+      const fetchReviews = async () => {
+        setLoadingReviews(true)
+        try {
+          const res = await api.get(`reviews/user/?email=${user.email}`)
+          setReviews(res.data.reviews)
+          setReviewsStats(res.data.stats)
+        } catch (err) {
+          console.error("Error fetching user reviews:", err)
+        } finally {
+          setLoadingReviews(false)
+        }
+      }
+      fetchReviews()
+    }
+  }, [user])
+
+  const openLeaveReview = (projectId, revieweeEmail, role) => {
+    setReviewTarget({
+      project_id: projectId,
+      reviewee_email: revieweeEmail,
+      reviewer_role: role
+    })
+    setReviewForm({ rating: 5, comment: '' })
+    setReviewModalOpen(true)
+    setError('')
+    setSuccess('')
+  }
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault()
+    if (!reviewTarget || submittingReview) return
+    setSubmittingReview(true)
+    setError('')
+    setSuccess('')
+    try {
+      await api.post('reviews/submit/', {
+        project_id: reviewTarget.project_id,
+        reviewer_email: user.email,
+        reviewee_email: reviewTarget.reviewee_email,
+        reviewer_role: reviewTarget.reviewer_role,
+        rating: reviewForm.rating,
+        comment: reviewForm.comment
+      })
+      setSuccess("Thank you for your feedback! Review submitted successfully. 🎉")
+      setReviewModalOpen(false)
+      setReviewTarget(null)
+      
+      // Re-fetch reviews to update metrics
+      const res = await api.get(`reviews/user/?email=${user.email}`)
+      setReviews(res.data.reviews)
+      setReviewsStats(res.data.stats)
+    } catch (err) {
+      console.error(err)
+      setError(err?.response?.data?.message || 'Failed to submit review. Note: You can only review once per project.')
+    } finally {
+      setSubmittingReview(false)
+    }
+  }
 
   const handleAcceptProposal = async (proposalId, projectId) => {
     if (!window.confirm("Are you sure you want to hire this freelancer? This will mark your project as in-progress and reject all other proposals.")) {
@@ -411,7 +486,20 @@ export default function ProfilePage() {
               <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', margin: '0 0 0.25rem', fontFamily: "'Space Grotesk', sans-serif" }}>
                 {user.first_name} {user.last_name}
               </h2>
-              <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem' }}>{user.email}</p>
+              <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.75rem' }}>{user.email}</p>
+
+              {/* Ratings Summary */}
+              {reviewsStats.count > 0 ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '1rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '999px', padding: '4px 12px', fontSize: '0.85rem' }}>
+                  <span style={{ color: '#f7971e', fontSize: '1rem' }}>★</span>
+                  <strong style={{ color: '#fff' }}>{reviewsStats.average_rating}</strong>
+                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>({reviewsStats.count} {reviewsStats.count === 1 ? 'review' : 'reviews'})</span>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '999px', padding: '4px 12px', fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}>
+                  <span>No reviews yet</span>
+                </div>
+              )}
 
               {/* Role badge */}
               <div style={{ marginBottom: '1.5rem' }}>
@@ -558,6 +646,24 @@ export default function ProfilePage() {
                         </button>
                       </>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('reviews')}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        borderBottom: activeTab === 'reviews' ? '2px solid #6c63ff' : '2px solid transparent',
+                        color: activeTab === 'reviews' ? '#fff' : 'rgba(255,255,255,0.4)',
+                        padding: '0.5rem 1rem',
+                        fontSize: '0.9rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        marginBottom: '-0.75rem'
+                      }}
+                    >
+                      Reviews ({reviewsStats.count})
+                    </button>
                   </div>
 
                   {/* Tab content: Overview */}
@@ -663,6 +769,23 @@ export default function ProfilePage() {
                                       }}
                                     >
                                       Mark Completed 🏆
+                                    </button>
+                                  )}
+                                  {project.status === 'completed' && project.hired_freelancer_email && (
+                                    <button
+                                      type="button"
+                                      onClick={() => openLeaveReview(project.id, project.hired_freelancer_email, 'client')}
+                                      className="btn-glow text-xs py-1.5 px-3 rounded-lg"
+                                      style={{
+                                        fontSize: '0.75rem',
+                                        background: 'linear-gradient(135deg, #f7971e, #ffd200)',
+                                        border: 'none',
+                                        color: '#000',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      ⭐ Review Freelancer
                                     </button>
                                   )}
                                   <button
@@ -936,14 +1059,33 @@ export default function ProfilePage() {
                                   <span>📁 <strong style={{ color: '#fff' }}>{project.category}</strong></span>
                                   <span>Contract Budget: <strong style={{ color: '#43e97b' }}>${project.budget}</strong></span>
                                 </div>
-                                <button
-                                  type="button"
-                                  onClick={() => navigate(`/chat?email=${project.client_email}`)}
-                                  className="btn-glow text-xs py-1.5 px-3 rounded-lg"
-                                  style={{ fontSize: '0.75rem', cursor: 'pointer' }}
-                                >
-                                  💬 Message Client
-                                </button>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                  {project.status === 'completed' && (
+                                    <button
+                                      type="button"
+                                      onClick={() => openLeaveReview(project.id, project.client_email, 'freelancer')}
+                                      className="btn-glow text-xs py-1.5 px-3 rounded-lg"
+                                      style={{
+                                        fontSize: '0.75rem',
+                                        background: 'linear-gradient(135deg, #f7971e, #ffd200)',
+                                        border: 'none',
+                                        color: '#000',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      ⭐ Review Client
+                                    </button>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => navigate(`/chat?email=${project.client_email}`)}
+                                    className="btn-glow text-xs py-1.5 px-3 rounded-lg"
+                                    style={{ fontSize: '0.75rem', cursor: 'pointer' }}
+                                  >
+                                    💬 Message Client
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -959,6 +1101,103 @@ export default function ProfilePage() {
                           </Link>
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Tab content: Reviews & Ratings */}
+                  {activeTab === 'reviews' && (
+                    <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                      <h4 style={{ fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                        Client & Freelancer Feedback
+                      </h4>
+
+                      {/* Ratings Breakdown Summary Grid */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                        gap: '1.5rem',
+                        background: 'rgba(255,255,255,0.01)',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                        borderRadius: '16px',
+                        padding: '1.5rem',
+                        alignItems: 'center'
+                      }}>
+                        {/* Overall Big Number Score */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.06)', paddingRight: '1rem' }}>
+                          <span style={{ fontSize: '3rem', fontWeight: 800, color: '#fff', lineHeight: 1 }}>
+                            {reviewsStats.average_rating}
+                          </span>
+                          <div style={{ display: 'flex', gap: '0.1rem', margin: '0.5rem 0' }}>
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <span key={i} style={{ color: i < Math.round(reviewsStats.average_rating) ? '#f7971e' : 'rgba(255,255,255,0.1)', fontSize: '1.25rem' }}>★</span>
+                            ))}
+                          </div>
+                          <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)' }}>
+                            Based on {reviewsStats.count} {reviewsStats.count === 1 ? 'rating' : 'ratings'}
+                          </span>
+                        </div>
+
+                        {/* Breakdown Progress Bars */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {['5', '4', '3', '2', '1'].map((stars) => {
+                            const count = reviewsStats.breakdown[stars] || 0
+                            const percentage = reviewsStats.count > 0 ? (count / reviewsStats.count) * 100 : 0
+                            return (
+                              <div key={stars} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.85rem' }}>
+                                <span style={{ width: '45px', color: 'rgba(255,255,255,0.5)', textAlign: 'right' }}>{stars} Star</span>
+                                <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.04)', borderRadius: '999px', overflow: 'hidden' }}>
+                                  <div style={{ width: `${percentage}%`, height: '100%', background: 'linear-gradient(90deg, #6c63ff, #ff6584)', borderRadius: '999px' }} />
+                                </div>
+                                <span style={{ width: '25px', color: 'rgba(255,255,255,0.4)', textAlign: 'left' }}>{count}</span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Individual Reviews Listing */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {loadingReviews ? (
+                          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>Loading feedback list...</div>
+                        ) : reviews.length > 0 ? (
+                          reviews.map((rev) => (
+                            <div key={rev.id} style={{
+                              background: 'rgba(255,255,255,0.01)',
+                              border: '1px solid rgba(255,255,255,0.04)',
+                              borderRadius: '12px',
+                              padding: '1.25rem'
+                            }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.5rem' }}>
+                                <div>
+                                  <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>
+                                    {rev.reviewer_name}
+                                  </span>
+                                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', textTransform: 'capitalize' }}>
+                                    {rev.reviewer_role === 'client' ? '🏢 Client' : '💻 Freelancer'}
+                                  </span>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
+                                  <div style={{ display: 'flex', gap: '0.05rem' }}>
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                      <span key={i} style={{ color: i < rev.rating ? '#f7971e' : 'rgba(255,255,255,0.1)', fontSize: '0.9rem' }}>★</span>
+                                    ))}
+                                  </div>
+                                  <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)' }}>
+                                    {new Date(rev.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                                  </span>
+                                </div>
+                              </div>
+                              <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.5, fontStyle: 'italic', whiteSpace: 'pre-wrap' }}>
+                                "{rev.comment || 'No comment provided.'}"
+                              </p>
+                            </div>
+                          ))
+                        ) : (
+                          <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.06)', borderRadius: '12px', padding: '2.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
+                            No feedback reviews received yet.
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -1090,7 +1329,101 @@ export default function ProfilePage() {
 
         </div>
       </main>
+      {/* Leave Review Overlay Modal */}
+      {reviewModalOpen && reviewTarget && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)',
+          padding: '1rem'
+        }}>
+          <div className="glass-card" style={{
+            width: '100%', maxWidth: '480px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif" }}>
+                ⭐ Write a Review
+              </h3>
+              <button 
+                type="button" 
+                onClick={() => { setReviewModalOpen(false); setReviewTarget(null); }}
+                style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '1.25rem', cursor: 'pointer' }}
+              >
+                ✕
+              </button>
+            </div>
 
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>
+              Share your feedback for <strong>{reviewTarget.reviewee_email}</strong>. Ratings are displayed publicly on user profiles.
+            </p>
+
+            <form onSubmit={handleReviewSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {/* Star Rating Interactive Selector */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                  Rating
+                </label>
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                      style={{
+                        background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
+                        fontSize: '2.5rem', transition: 'transform 0.1s',
+                        color: star <= reviewForm.rating ? '#f7971e' : 'rgba(255,255,255,0.1)'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.15)'}
+                      onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Review Comment Textarea */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', marginBottom: '0.45rem' }}>
+                  Comments
+                </label>
+                <textarea
+                  required
+                  rows="4"
+                  placeholder="Describe your experience working on this project..."
+                  value={reviewForm.comment}
+                  onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                  style={{
+                    width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px', padding: '0.75rem 1rem', color: '#fff', fontSize: '0.9rem', outline: 'none',
+                    boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              {/* Submit Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button 
+                  type="button" 
+                  onClick={() => { setReviewModalOpen(false); setReviewTarget(null); }} 
+                  className="btn-outline text-sm px-5 py-2 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={submittingReview} 
+                  className="btn-glow text-sm px-6 py-2 rounded-xl"
+                  style={{ minWidth: 100, justifyContent: 'center' }}
+                >
+                  {submittingReview ? 'Submitting...' : 'Submit Review'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <Footer />
       <style>{`
         @media (max-width: 768px) {
