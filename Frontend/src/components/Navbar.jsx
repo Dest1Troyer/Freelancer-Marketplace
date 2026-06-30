@@ -2,9 +2,9 @@ import { useState, useEffect, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 
-const links = [
-  { label: 'Find Talent', to: '/find-talent', isHash: false },
-  { label: 'Find Work', to: '/find-work', isHash: false },
+const allLinks = [
+  { label: 'Find Talent', to: '/find-talent', isHash: false, hideForRole: 'freelancer' },
+  { label: 'Find Work', to: '/find-work', isHash: false, hideForRole: 'client' },
   { label: 'Why FreelanceHub', to: '#', isHash: true },
   { label: 'Enterprise', to: '#', isHash: true },
 ]
@@ -23,6 +23,13 @@ export default function Navbar() {
   const { user, logoutUser } = useContext(AuthContext)
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Filter links based on user role
+  const links = allLinks.filter(link => {
+    if (!link.hideForRole) return true
+    if (!user) return true // Show all links when not logged in
+    return user.role !== link.hideForRole
+  })
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30)

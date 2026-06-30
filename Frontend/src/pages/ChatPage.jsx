@@ -2,7 +2,6 @@ import { useState, useContext, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
 import api from '../api/axios'
 
 const cx = {
@@ -37,6 +36,7 @@ export default function ChatPage() {
   const [conversations, setConversations] = useState([])
   const [loadingConversations, setLoadingConversations] = useState(true)
   const [activeContact, setActiveContact] = useState(null)
+  const activeContactRef = useRef(null)
   
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
@@ -44,6 +44,11 @@ export default function ChatPage() {
   const [historyLoading, setHistoryLoading] = useState(false)
 
   const messagesEndRef = useRef(null)
+
+  // Keep ref in sync with state so effects always have current value
+  useEffect(() => {
+    activeContactRef.current = activeContact
+  }, [activeContact])
   
   // Parse query parameter email
   const queryParams = new URLSearchParams(location.search)
@@ -74,24 +79,33 @@ export default function ChatPage() {
               // Lookup profile details to start new conversation
               try {
                 const profileRes = await api.get(`profile/get/?email=${queryEmail}`)
+                const profileData = profileRes.data
+                // Ensure contact object has all required fields
+                const contactObj = {
+                  email: profileData.email || queryEmail,
+                  first_name: profileData.first_name || '',
+                  last_name: profileData.last_name || '',
+                  role: profileData.role || '',
+                  profile_picture: profileData.profile_picture || '',
+                }
                 const newContactInfo = {
-                  contact: profileRes.data,
+                  contact: contactObj,
                   last_message: { text: 'Start your conversation!', sender_email: '', created_at: null },
                   unread_count: 0
                 }
                 setConversations(prev => {
-                  if (prev.some(c => c.contact.email === newContactInfo.contact.email)) {
+                  if (prev.some(c => c.contact.email === contactObj.email)) {
                     return prev
                   }
                   return [newContactInfo, ...prev]
                 })
-                setActiveContact(profileRes.data)
+                setActiveContact(contactObj)
               } catch (profileErr) {
                 console.error("Error looking up linked user profile:", profileErr)
               }
             }
-          } else if (res.data.length > 0 && !activeContact) {
-            // Default to first conversation
+          } else if (res.data.length > 0 && !activeContactRef.current) {
+            // Default to first conversation (use ref to avoid stale closure)
             setActiveContact(res.data[0].contact)
           }
         } catch (err) {
@@ -216,10 +230,10 @@ export default function ChatPage() {
   }
 
   return (
-    <div style={{ width: '100%', minHeight: '100vh', background: '#07070f', color: '#fff', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ width: '100%', height: '100vh', background: '#07070f', color: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Navbar />
 
-      <main style={{ flex: 1, position: 'relative', overflow: 'hidden', paddingTop: '7.5rem', paddingBottom: '3rem', display: 'flex', alignItems: 'stretch' }}>
+      <main style={{ flex: 1, position: 'relative', overflow: 'hidden', paddingTop: '5rem', display: 'flex', alignItems: 'stretch' }}>
         {/* Ambient glow backgrounds */}
         <div style={{ position: 'absolute', width: 450, height: 450, top: '-180px', left: '-180px', background: 'rgba(108,99,255,0.06)', borderRadius: '50%', filter: 'blur(90px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', width: 400, height: 400, bottom: '-100px', right: '-100px', background: 'rgba(255,101,132,0.04)', borderRadius: '50%', filter: 'blur(90px)', pointerEvents: 'none' }} />
@@ -231,7 +245,7 @@ export default function ChatPage() {
           backgroundSize: '30px 30px',
         }} />
 
-        <div style={{ ...cx, display: 'flex', gap: '2rem', height: 'calc(100vh - 12rem)', alignItems: 'stretch' }}>
+        <div style={{ ...cx, display: 'flex', gap: '1.5rem', height: '100%', alignItems: 'stretch', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
           
           {/* Left Panel: Conversations list */}
           <div className="glass-card" style={{ flex: '1 1 300px', padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -432,7 +446,6 @@ export default function ChatPage() {
         </div>
       </main>
 
-      <Footer />
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   )
