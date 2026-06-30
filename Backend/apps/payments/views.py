@@ -53,7 +53,7 @@ def release_payment(request):
 
         # Release payment
         transaction.status = "released"
-        transaction.updated_at = datetime.datetime.utcnow()
+        transaction.updated_at = datetime.datetime.now(datetime.timezone.utc)
         transaction.save()
 
         return Response({

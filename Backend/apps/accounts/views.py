@@ -3,6 +3,10 @@ from rest_framework.response import Response
 from apps.accounts.models import User
 from rest_framework import status
 import traceback
+import hashlib
+
+def hash_password(password):
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
 @api_view(["POST"])
 def register(request):
@@ -22,7 +26,7 @@ def register(request):
             first_name=data.get("first_name", ""),
             last_name=data.get("last_name", ""),
             email=email,
-            password=data.get("password", ""),
+            password=hash_password(data.get("password", "")),
             role=data.get("role", "freelancer"),
             country=data.get("country", "")
         )
@@ -36,8 +40,7 @@ def register(request):
         traceback.print_exc()
         return Response({
             "message": "Internal Server Error during registration",
-            "error": str(e),
-            "traceback": traceback.format_exc()
+            "error": str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -56,10 +59,17 @@ def login(request):
                 "message": "User not found"
             }, status=status.HTTP_404_NOT_FOUND)
 
-        if user.password != password:
-            return Response({
-                "message": "Invalid password"
-            }, status=status.HTTP_401_UNAUTHORIZED)
+        hashed = hash_password(password)
+        if user.password != hashed:
+            # Backward compatibility: check if stored password is plaintext (pre-migration)
+            if user.password == password:
+                # Auto-migrate to hashed password
+                user.password = hashed
+                user.save()
+            else:
+                return Response({
+                    "message": "Invalid password"
+                }, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response({
             "message": "Login successful",
@@ -81,9 +91,8 @@ def login(request):
         print("LOGIN ERROR:", str(e))
         traceback.print_exc()
         return Response({
-            "message": "Internal Server Error during login serialization",
-            "error": str(e),
-            "traceback": traceback.format_exc()
+            "message": "Internal Server Error during login",
+            "error": str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -131,8 +140,7 @@ def update_profile(request):
         traceback.print_exc()
         return Response({
             "message": "Internal Server Error during profile update",
-            "error": str(e),
-            "traceback": traceback.format_exc()
+            "error": str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

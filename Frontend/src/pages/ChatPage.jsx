@@ -118,16 +118,29 @@ export default function ChatPage() {
     }
   }
 
-  // Poll for new messages dynamically
+  // Poll for new messages and refresh conversations sidebar
   useEffect(() => {
     if (user && activeContact) {
       fetchChatHistory(activeContact.email, true)
       
-      const interval = setInterval(() => {
+      const msgInterval = setInterval(() => {
         fetchChatHistory(activeContact.email)
       }, 3000)
+
+      // Also refresh conversations sidebar every 10s to show new contacts
+      const convInterval = setInterval(async () => {
+        try {
+          const res = await api.get(`chat/conversations/?email=${user.email}`)
+          setConversations(res.data)
+        } catch (err) {
+          console.error("Error refreshing conversations:", err)
+        }
+      }, 10000)
       
-      return () => clearInterval(interval)
+      return () => {
+        clearInterval(msgInterval)
+        clearInterval(convInterval)
+      }
     }
   }, [user, activeContact])
 
