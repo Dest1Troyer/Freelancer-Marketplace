@@ -190,3 +190,91 @@ def health_check(request):
                 "error": str(e),
                 "message": "Database connection failed. Check your MONGO_URI env variable."
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+def list_freelancers(request):
+    try:
+        search = request.query_params.get("search", "")
+        skills = request.query_params.get("skills", "")
+        min_rate = request.query_params.get("min_rate", "")
+        max_rate = request.query_params.get("max_rate", "")
+        country = request.query_params.get("country", "")
+
+        from mongoengine.queryset.visitor import Q
+        q_obj = Q(role="freelancer")
+
+        if search:
+            q_obj = q_obj & (
+                Q(first_name__icontains=search) | 
+                Q(last_name__icontains=search) | 
+                Q(headline__icontains=search) | 
+                Q(bio__icontains=search)
+            )
+
+        if skills:
+            skill_list = [s.strip().lower() for s in skills.split(",") if s.strip()]
+            for sk in skill_list:
+                q_obj = q_obj & Q(skills__icontains=sk)
+
+        if country:
+            q_obj = q_obj & Q(country__icontains=country)
+
+        freelancers = User.objects(q_obj)
+
+        filtered = []
+        from apps.reviews.models import Review
+
+        for user in freelancers:
+            rate_val = None
+            if getattr(user, "hourly_rate", ""):
+                try:
+                    cleaned_rate = str(user.hourly_rate).replace("$", "").strip()
+                    rate_val = float(cleaned_rate)
+                except ValueError:
+                    pass
+
+            if min_rate:
+                try:
+                    if rate_val is None or rate_val < float(min_rate):
+                        continue
+                except ValueError:
+                    pass
+
+            if max_rate:
+                try:
+                    if rate_val is None or rate_val > float(max_rate):
+                        continue
+                except ValueError:
+                    pass
+
+            # Aggregate ratings
+            reviews = Review.objects(reviewee_email=user.email)
+            count = len(reviews)
+            avg_rating = 0.0
+            if count > 0:
+                avg_rating = round(sum(r.rating for r in reviews) / count, 1)
+
+            filtered.append({
+                "first_name": getattr(user, 'first_name', ''),
+                "last_name": getattr(user, 'last_name', ''),
+                "email": getattr(user, 'email', ''),
+                "country": getattr(user, 'country', ''),
+                "headline": getattr(user, 'headline', ''),
+                "bio": getattr(user, 'bio', ''),
+                "skills": getattr(user, 'skills', ''),
+                "profile_picture": getattr(user, 'profile_picture', ''),
+                "hourly_rate": getattr(user, 'hourly_rate', ''),
+                "average_rating": avg_rating,
+                "review_count": count
+            })
+
+        return Response(filtered, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print("LIST FREELANCERS ERROR:", str(e))
+        traceback.print_exc()
+        return Response({
+            "message": "Internal Server Error",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

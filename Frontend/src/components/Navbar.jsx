@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 
 const links = [
-  { label: 'Find Talent', to: '/#featured-freelancers-section', isHash: true },
+  { label: 'Find Talent', to: '/find-talent', isHash: false },
   { label: 'Find Work', to: '/find-work', isHash: false },
   { label: 'Why FreelanceHub', to: '#', isHash: true },
   { label: 'Enterprise', to: '#', isHash: true },

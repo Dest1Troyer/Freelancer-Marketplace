@@ -8,5 +8,6 @@ urlpatterns = [
     path("register/", register),
     path("profile/update/", update_profile),
     path("profile/get/", get_user_profile),
+    path("freelancers/", list_freelancers),
     path("health-check/",health_check)
 ]
