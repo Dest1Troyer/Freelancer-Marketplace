@@ -5,8 +5,8 @@ import { AuthContext } from '../context/AuthContext'
 const allLinks = [
   { label: 'Find Talent', to: '/find-talent', isHash: false, hideForRole: 'freelancer' },
   { label: 'Find Work', to: '/find-work', isHash: false, hideForRole: 'client' },
-  { label: 'Why FreelanceHub', to: '#', isHash: true },
-  { label: 'Enterprise', to: '#', isHash: true },
+  { label: 'Why FreelanceHub', to: '/why-freelancehub', isHash: false },
+  { label: 'Enterprise', to: '/enterprise', isHash: false },
 ]
 
 const cx = {
