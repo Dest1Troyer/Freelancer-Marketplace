@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar'
 import api from '../api/axios'
 
 const cx = {
+  marginTop:'100px',
   maxWidth: '1200px',
   marginLeft: 'auto',
   marginRight: 'auto',

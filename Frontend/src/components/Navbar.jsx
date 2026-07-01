@@ -70,6 +70,7 @@ export default function Navbar() {
           </span>
         </Link>
 
+          <div className='flex' style={{gap:'2rem'}} >
         {/* Desktop Nav */}
         <nav style={{ alignItems: 'center', gap: '2rem' }} className="hidden-mobile">
           {links.map((link) => (
@@ -92,32 +93,26 @@ export default function Navbar() {
             <button className="btn-glow text-sm px-5 py-2.5" onClick={() => navigate('/register')}>Get Started</button>
           </div>
         ) : (
-          <div style={{ alignItems: 'center', gap: '0.75rem', flexShrink: 0 }} className="hidden-mobile">
-            <button className="btn-outline text-sm px-5 py-2.5" onClick={() => navigate('/chat')}>
-              💬 Messages
+          <div style={{ alignItems: 'center', gap: '2rem', flexShrink: 0 }} className="hidden-mobile">
+            <button className=" text-sm text-white/60 hover:text-white transition-colors duration-200 font-medium" onClick={() => navigate('/chat')}>
+              Messages
             </button>
             {user.role === 'client' && (
-              <button className="btn-glow text-sm px-5 py-2.5" onClick={() => navigate('/post-project')}>Post a Project</button>
+              <button className=" text-sm text-white/60 hover:text-white transition-colors duration-200 font-medium" onClick={() => navigate('/post-project')}>Post Project</button>
             )}
             <button 
-              className="btn-outline text-sm px-5 py-2.5" 
+              className=" text-sm text-white/60 hover:text-white transition-colors duration-200 font-medium" 
               onClick={() => navigate('/profile')}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
             >
-              {user.profile_picture ? (
-                <img
-                  src={user.profile_picture}
-                  alt="Avatar"
-                  style={{ width: '20px', height: '20px', borderRadius: '50%', objectFit: 'cover' }}
-                />
-              ) : (
-                <span style={{ fontSize: '0.85rem' }}>👤</span>
-              )}
+              
               <span>My Profile</span>
             </button>
-            <button className="btn-outline text-sm px-5 py-2.5" style={{ borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); navigate('/') }}>Log Out</button>
           </div>
         )}
+
+        </div>
+        <button className="btn-glow text-sm px-5 py-2.5" style={{ borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); navigate('/') }}>Log Out</button>
  
         {/* Hamburger */}
         <button
