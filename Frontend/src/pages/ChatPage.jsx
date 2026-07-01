@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar'
 import api from '../api/axios'
 
 const cx = {
-  marginTop:'100px',
+
   maxWidth: '1200px',
   marginLeft: 'auto',
   marginRight: 'auto',
@@ -245,7 +245,9 @@ export default function ChatPage() {
           backgroundSize: '30px 30px',
         }} />
 
-        <div className="chat-container" style={{ ...cx, display: 'flex', gap: '1.5rem', height: '100%', alignItems: 'stretch', paddingTop: '1.5rem', paddingBottom: '1.5rem' }}>
+        <div className="chat-container" style={{ ...cx, display: 'flex', gap: '1.5rem', height: '100%', alignItems: 'stretch', paddingTop: '1.5rem', paddingBottom: '1.5rem',
+          marginTop:!activeContact?"0px":"100px"
+         }}>
           
           {/* Left Panel: Conversations list */}
           <div className={`glass-card chat-sidebar ${activeContact ? 'mobile-hidden' : ''}`} style={{ flex: '1 1 300px', padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -444,7 +446,10 @@ export default function ChatPage() {
                         <path d="M12 2a10 10 0 0110 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
                       </svg>
                     ) : (
-                      'Send 🚀'
+                      <span style={{minWidth:'max-content'}}>
+
+                        Send 🚀
+                      </span>
                     )}
                   </button>
                 </form>

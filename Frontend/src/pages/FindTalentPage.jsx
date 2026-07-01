@@ -288,7 +288,7 @@ export default function FindTalentPage() {
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', fontSize: '0.85rem' }}>
                             <strong style={{ color: '#43e97b', fontSize: '1rem' }}>
-                              {f.hourly_rate ? `$${f.hourly_rate}/hr` : 'Rate Negotiable'}
+                              {f.hourly_rate ? `${f.hourly_rate}/hr` : 'Rate Negotiable'}
                             </strong>
                             <span style={{ color: 'rgba(255,255,255,0.4)' }}>
                               📍 {f.country || 'Remote'}

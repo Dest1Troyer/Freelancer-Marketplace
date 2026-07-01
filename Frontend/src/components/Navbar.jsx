@@ -69,8 +69,10 @@ export default function Navbar() {
             Freelance<span style={{ color: '#6c63ff' }}>Hub</span>
           </span>
         </Link>
-
-          <div className='flex' style={{gap:'2rem'}} >
+          <div className='flex' style={{
+            gap:'2rem',
+            transform:!user?'translateX(4rem)':""
+          }} >
         {/* Desktop Nav */}
         <nav style={{ alignItems: 'center', gap: '2rem' }} className="hidden-mobile">
           {links.map((link) => (
@@ -88,10 +90,7 @@ export default function Navbar() {
  
         {/* Auth Buttons */}
         {!user ? (
-          <div style={{ alignItems: 'center', gap: '0.75rem', flexShrink: 0 }} className="hidden-mobile">
-            <button className="btn-outline text-sm px-5 py-2.5" onClick={() => navigate('/login')}>Log In</button>
-            <button className="btn-glow text-sm px-5 py-2.5" onClick={() => navigate('/register')}>Get Started</button>
-          </div>
+          <div></div>
         ) : (
           <div style={{ alignItems: 'center', gap: '2rem', flexShrink: 0 }} className="hidden-mobile">
             <button className=" text-sm text-white/60 hover:text-white transition-colors duration-200 font-medium" onClick={() => navigate('/chat')}>
@@ -112,8 +111,16 @@ export default function Navbar() {
         )}
 
         </div>
-        <button className="btn-glow text-sm px-5 py-2.5" style={{ borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); navigate('/') }}>Log Out</button>
- 
+        {!user?(
+          <div style={{ alignItems: 'center', gap: '0.75rem', flexShrink: 0 }} className="hidden-mobile">
+          <button className="btn-outline text-sm px-5 py-2.5" onClick={() => navigate('/register')}>Get Started</button>
+          <button className="btn-glow text-sm px-5 py-2.5" onClick={() => navigate('/login')}>Log In</button>
+          </div>
+
+        ):(
+          <button className="btn-glow text-sm px-5 py-2.5" style={{ borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); navigate('/') }}>Log Out</button>
+        )}
+        
         {/* Hamburger */}
         <button
           className="visible-mobile p-2 rounded-lg border border-white/10 hover:bg-white/5 transition-colors"
