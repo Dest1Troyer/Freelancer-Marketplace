@@ -20,6 +20,8 @@ import PostProjectPage from './pages/PostProjectPage'
 import FindWorkPage from './pages/FindWorkPage'
 import ChatPage from './pages/ChatPage'
 import FindTalentPage from './pages/FindTalentPage'
+import WhyFreelanceHubPage from './pages/WhyFreelanceHubPage'
+import EnterprisePage from './pages/EnterprisePage'
 
 function HomePage() {
   return (
@@ -50,6 +52,8 @@ function App() {
       <Route path="/find-work"  element={<FindWorkPage />} />
       <Route path="/find-talent" element={<FindTalentPage />} />
       <Route path="/chat"       element={<ChatPage />} />
+      <Route path="/why-freelancehub" element={<WhyFreelanceHubPage />} />
+      <Route path="/enterprise"       element={<EnterprisePage />} />
     </Routes>
   )
 }
