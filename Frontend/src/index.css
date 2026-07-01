@@ -166,11 +166,7 @@ body {
 .logo-text {
   display: inline !important;
 }
-@media (max-width: 480px) {
-  .logo-text {
-    display: none !important;
-  }
-}
+
 
 /* Mobile Menu Drawer Container */
 .mobile-menu-drawer {
