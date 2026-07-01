@@ -119,7 +119,7 @@ export default function Navbar() {
 
         ):(
           
-          !mobileOpen && <button className="btn-glow text-sm px-5 py-2.5" style={{ borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); navigate('/') }}>Log Out</button>
+          <button className="hidden-mobile btn-glow text-sm px-5 py-2.5" style={{ borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); navigate('/') }}>Log Out</button>
             
         )}
         
