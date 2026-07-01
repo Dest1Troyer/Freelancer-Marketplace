@@ -118,7 +118,9 @@ export default function Navbar() {
           </div>
 
         ):(
-          <button className="btn-glow text-sm px-5 py-2.5" style={{ borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); navigate('/') }}>Log Out</button>
+          
+          !mobileOpen && <button className="btn-glow text-sm px-5 py-2.5" style={{ borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); navigate('/') }}>Log Out</button>
+            
         )}
         
         {/* Hamburger */}
@@ -175,7 +177,7 @@ export default function Navbar() {
                 )}
                 <span>My Profile</span>
               </button>
-              <button className="btn-outline text-sm py-3 justify-center" style={{ width: '100%', borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); setMobileOpen(false); navigate('/') }}>Log Out</button>
+              <button className="btn-glow text-sm py-3 justify-center" style={{ width: '100%', borderColor: 'rgba(255,68,68,0.25)' }} onClick={() => { logoutUser(); setMobileOpen(false); navigate('/') }}>Log Out</button>
             </div>
           )}
         </div>

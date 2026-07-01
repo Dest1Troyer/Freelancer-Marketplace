@@ -294,7 +294,7 @@ export default function FindWorkPage() {
                         
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
                           <span style={{ fontWeight: 700, color: '#43e97b' }}>
-                            ${project.budget}{project.project_type === 'hourly' ? '/hr' : ''}
+                            {project.budget}{project.project_type === 'hourly' ? '/hr' : ''}
                           </span>
                           <span style={{ color: 'rgba(255,255,255,0.3)', textTransform: 'capitalize' }}>
                             {project.project_type}
@@ -363,7 +363,7 @@ export default function FindWorkPage() {
                         <div>
                           <span style={{ display: 'block', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>Budget</span>
                           <strong style={{ fontSize: '1.25rem', color: '#43e97b' }}>
-                            ${selectedProject.budget}{selectedProject.project_type === 'hourly' ? '/hr' : ''}
+                            {selectedProject.budget}{selectedProject.project_type === 'hourly' ? '/hr' : ''}
                           </strong>
                         </div>
                         <div>
